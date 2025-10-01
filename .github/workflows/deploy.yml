@@ -54,12 +54,26 @@ jobs:
           REPO="ghcr.io/$OWNER/$NAME"
           SHA=${{ github.sha }}
           
+          echo "Repository: $REPO"
+          echo "SHA: $SHA"
+          echo "Current directory: $(pwd)"
+          echo "Directory contents:"
+          ls -la
+          
           declare -a SVC=("vendor-mock" "vendor-pricing" "checkout" "edge-gateway" "web-ui")
           for s in "${SVC[@]}"; do
             echo "Building and pushing $s..."
-            docker build -t $REPO-$s:$SHA -t $REPO-$s:latest $s
-            docker push $REPO-$s:$SHA
-            docker push $REPO-$s:latest
+            echo "Building from directory: ./$s"
+            if [ -d "./$s" ]; then
+              echo "Directory exists, proceeding with build..."
+              docker build -t $REPO-$s:$SHA -t $REPO-$s:latest ./$s
+              docker push $REPO-$s:$SHA
+              docker push $REPO-$s:latest
+              echo "Successfully built and pushed $s"
+            else
+              echo "ERROR: Directory ./$s does not exist!"
+              exit 1
+            fi
           done
 
   deploy:
