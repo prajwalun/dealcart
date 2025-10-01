@@ -10,7 +10,7 @@ permissions:
   packages: write   # needed for GHCR
 
 jobs:
-  build:
+  build-and-push:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -28,12 +28,6 @@ jobs:
       
       - name: Build Maven projects
         run: ./mvnw -q -DskipTests package
-
-  images:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
       
       - name: Login to GHCR
         uses: docker/login-action@v3
@@ -57,13 +51,13 @@ jobs:
           echo "Repository: $REPO"
           echo "SHA: $SHA"
           echo "Current directory: $(pwd)"
-          echo "Directory contents:"
-          ls -la
+          echo "Target directory contents:"
+          ls -la target/
           
           declare -a SVC=("vendor-mock" "vendor-pricing" "checkout" "edge-gateway" "web-ui")
           for s in "${SVC[@]}"; do
             echo "Building and pushing $s..."
-            echo "Building from project root with context: ./$s"
+            echo "Building from project root with Dockerfile: ./$s/Dockerfile"
             if [ -d "./$s" ]; then
               echo "Directory exists, proceeding with build..."
               # Build from project root so Docker can access target/ directory
@@ -78,7 +72,7 @@ jobs:
           done
 
   deploy:
-    needs: images
+    needs: build-and-push
     runs-on: ubuntu-latest
     if: github.event_name == 'workflow_dispatch'
     steps:
