@@ -30,10 +30,17 @@ jobs:
         run: |
           echo "Building Maven projects..."
           ./mvnw -DskipTests package
-          echo "Maven build completed. Checking target directory..."
-          ls -la target/
-          echo "Target directory contents:"
-          find target/ -name "*.jar" -type f
+          echo "Maven build completed. Checking service target directories..."
+          echo "Vendor-mock target:"
+          ls -la vendor-mock/target/
+          echo "Vendor-pricing target:"
+          ls -la vendor-pricing/target/
+          echo "Checkout target:"
+          ls -la checkout/target/
+          echo "Edge-gateway target:"
+          ls -la edge-gateway/target/
+          echo "All JAR files:"
+          find . -name "*.jar" -type f | grep target
       
       - name: Login to GHCR
         uses: docker/login-action@v3
@@ -57,8 +64,6 @@ jobs:
           echo "Repository: $REPO"
           echo "SHA: $SHA"
           echo "Current directory: $(pwd)"
-          echo "Target directory contents:"
-          ls -la target/
           
           declare -a SVC=("vendor-mock" "vendor-pricing" "checkout" "edge-gateway" "web-ui")
           for s in "${SVC[@]}"; do
