@@ -1,0 +1,252 @@
+=========================================
+DealCart+ High-Volume Scale Tests
+=========================================
+
+WARNING: package sun.awt.X11 not in java.desktop
+✅ JMeter found: WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+
+Checking Docker services...
+✅ Services running
+
+Verifying autoscaling is enabled...
+vendor-pricing  | [main] INFO dev.dealcart.pricing.VendorPricingServer - Autoscaling config: min=8, max=64, step=8, targetP95=250ms, lowerP95=200ms, window=2000
+
+Cleaning old scale test results...
+
+=========================================
+TEST 1: 50K REQUESTS (50 threads × 1000 loops)
+=========================================
+
+🚀 Starting 50K request test...
+   Expected duration: ~5-7 minutes
+   Watch scaling: docker compose logs -f vendor-pricing | grep -E 'snapshot|SCALE'
+
+WARNING: package sun.awt.X11 not in java.desktop
+WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+Creating summariser <summary>
+Created the tree successfully using dealcart-50k.jmx
+Starting standalone test @ 2025 Sep 30 23:06:10 PDT (1759298770903)
+Waiting for possible Shutdown/StopTestNow/HeapDump/ThreadDump message on port 4445
+summary +    539 in 00:00:19 =   28.4/s Avg:   154 Min:    34 Max:   516 Err:     0 (0.00%) Active: 8 Started: 8 Finished: 0
+summary +   2218 in 00:00:30 =   73.9/s Avg:   196 Min:    30 Max:   613 Err:     0 (0.00%) Active: 21 Started: 21 Finished: 0
+summary =   2757 in 00:00:49 =   56.2/s Avg:   188 Min:    30 Max:   613 Err:     0 (0.00%)
+summary +   2175 in 00:00:30 =   72.6/s Avg:   372 Min:   125 Max:  1477 Err:     0 (0.00%) Active: 33 Started: 33 Finished: 0
+summary =   4932 in 00:01:19 =   62.4/s Avg:   269 Min:    30 Max:  1477 Err:     0 (0.00%)
+summary +   2305 in 00:00:30 =   76.8/s Avg:   511 Min:   257 Max:   978 Err:     0 (0.00%) Active: 46 Started: 46 Finished: 0
+summary =   7237 in 00:01:49 =   66.4/s Avg:   346 Min:    30 Max:  1477 Err:     0 (0.00%)
+summary +   2252 in 00:00:30 =   75.1/s Avg:   656 Min:   436 Max:  1504 Err:     0 (0.00%) Active: 50 Started: 50 Finished: 0
+summary =   9489 in 00:02:19 =   68.3/s Avg:   420 Min:    30 Max:  1504 Err:     0 (0.00%)
+summary +   2284 in 00:00:30 =   76.1/s Avg:   656 Min:   436 Max:  1109 Err:     0 (0.00%) Active: 50 Started: 50 Finished: 0
+summary =  11773 in 00:02:49 =   69.7/s Avg:   466 Min:    30 Max:  1504 Err:     0 (0.00%)
+summary +   2167 in 00:00:30 =   72.3/s Avg:   693 Min:   449 Max:  2011 Err:    44 (2.03%) Active: 50 Started: 50 Finished: 0
+summary =  13940 in 00:03:19 =   70.0/s Avg:   501 Min:    30 Max:  2011 Err:    44 (0.32%)
+summary +   2232 in 00:00:30 =   74.4/s Avg:   670 Min:   455 Max:  1186 Err:     0 (0.00%) Active: 50 Started: 50 Finished: 0
+summary =  16172 in 00:03:49 =   70.6/s Avg:   524 Min:    30 Max:  2011 Err:    44 (0.27%)
+summary +   2217 in 00:00:30 =   74.0/s Avg:   675 Min:   435 Max:  1911 Err:    40 (1.80%) Active: 50 Started: 50 Finished: 0
+summary =  18389 in 00:04:19 =   71.0/s Avg:   542 Min:    30 Max:  2011 Err:    84 (0.46%)
+summary +   2298 in 00:00:30 =   76.6/s Avg:   652 Min:   435 Max:  1112 Err:     0 (0.00%) Active: 50 Started: 50 Finished: 0
+summary =  20687 in 00:04:49 =   71.6/s Avg:   555 Min:    30 Max:  2011 Err:    84 (0.41%)
+summary +   2180 in 00:00:30 =   72.6/s Avg:   687 Min:   404 Max:  1785 Err:    36 (1.65%) Active: 50 Started: 50 Finished: 0
+summary =  22867 in 00:05:19 =   71.7/s Avg:   567 Min:    30 Max:  2011 Err:   120 (0.52%)
+summary +   2298 in 00:00:30 =   76.6/s Avg:   653 Min:   430 Max:  1064 Err:     0 (0.00%) Active: 50 Started: 50 Finished: 0
+summary =  25165 in 00:05:49 =   72.1/s Avg:   575 Min:    30 Max:  2011 Err:   120 (0.48%)
+summary +   2153 in 00:00:30 =   71.8/s Avg:   696 Min:   413 Max:  2095 Err:    50 (2.32%) Active: 50 Started: 50 Finished: 0
+summary =  27318 in 00:06:19 =   72.1/s Avg:   585 Min:    30 Max:  2095 Err:   170 (0.62%)
+summary +   2309 in 00:00:30 =   77.0/s Avg:   650 Min:   439 Max:  1042 Err:     0 (0.00%) Active: 50 Started: 50 Finished: 0
+summary =  29627 in 00:06:49 =   72.4/s Avg:   590 Min:    30 Max:  2095 Err:   170 (0.57%)
+summary +   2213 in 00:00:30 =   73.8/s Avg:   677 Min:   436 Max:  1664 Err:    18 (0.81%) Active: 50 Started: 50 Finished: 0
+summary =  31840 in 00:07:19 =   72.5/s Avg:   596 Min:    30 Max:  2095 Err:   188 (0.59%)
+summary +   2301 in 00:00:30 =   76.7/s Avg:   650 Min:   425 Max:  1103 Err:     0 (0.00%) Active: 50 Started: 50 Finished: 0
+summary =  34141 in 00:07:49 =   72.8/s Avg:   599 Min:    30 Max:  2095 Err:   188 (0.55%)
+summary +   2247 in 00:00:30 =   74.9/s Avg:   667 Min:   401 Max:  1518 Err:     2 (0.09%) Active: 50 Started: 50 Finished: 0
+summary =  36388 in 00:08:19 =   72.9/s Avg:   604 Min:    30 Max:  2095 Err:   190 (0.52%)
+summary +   2298 in 00:00:30 =   76.5/s Avg:   623 Min:   382 Max:  1063 Err:     0 (0.00%) Active: 47 Started: 50 Finished: 3
+summary =  38686 in 00:08:49 =   73.1/s Avg:   605 Min:    30 Max:  2095 Err:   190 (0.49%)
+summary +   2229 in 00:00:30 =   74.4/s Avg:   600 Min:   371 Max:  1890 Err:    32 (1.44%) Active: 42 Started: 50 Finished: 8
+summary =  40915 in 00:09:19 =   73.2/s Avg:   604 Min:    30 Max:  2095 Err:   222 (0.54%)
+summary +   2275 in 00:00:30 =   75.8/s Avg:   536 Min:   330 Max:   977 Err:     0 (0.00%) Active: 39 Started: 50 Finished: 11
+summary =  43190 in 00:09:49 =   73.3/s Avg:   601 Min:    30 Max:  2095 Err:   222 (0.51%)
+summary +   2287 in 00:00:30 =   76.2/s Avg:   492 Min:   266 Max:  1207 Err:     0 (0.00%) Active: 36 Started: 50 Finished: 14
+summary =  45477 in 00:10:19 =   73.5/s Avg:   595 Min:    30 Max:  2095 Err:   222 (0.49%)
+summary +   2264 in 00:00:30 =   75.5/s Avg:   421 Min:   216 Max:   917 Err:     0 (0.00%) Active: 28 Started: 50 Finished: 22
+summary =  47741 in 00:10:49 =   73.6/s Avg:   587 Min:    30 Max:  2095 Err:   222 (0.47%)
+summary +   2180 in 00:00:30 =   72.6/s Avg:   278 Min:    37 Max:  1306 Err:     0 (0.00%) Active: 6 Started: 50 Finished: 44
+summary =  49921 in 00:11:19 =   73.5/s Avg:   574 Min:    30 Max:  2095 Err:   222 (0.44%)
+summary +     79 in 00:00:03 =   30.3/s Avg:   139 Min:    38 Max:   414 Err:     0 (0.00%) Active: 0 Started: 50 Finished: 50
+summary =  50000 in 00:11:22 =   73.4/s Avg:   573 Min:    30 Max:  2095 Err:   222 (0.44%)
+Tidying up ...    @ 2025 Sep 30 23:17:32 PDT (1759299452656)
+... end of run
+
+✅ 50K test complete in 686s!
+   Results: /Users/prajwal/Documents/dealcart/loadtest/results-50k/index.html
+
+Extracting 50K metrics...
+50K Test Results:
+  Total Requests:  51332
+  Duration:        686s
+  Throughput:      74.8 TPS
+  Average Latency: 561ms
+  P50 Latency:     589ms
+  P95 Latency:     832ms
+  P99 Latency:     1064ms
+  Errors:          222 (0%)
+
+Waiting 30 seconds for system to stabilize...
+
+=========================================
+TEST 2: 100K REQUESTS (50 threads × 2000 loops)
+=========================================
+
+🚀 Starting 100K request test...
+   Expected duration: ~10-15 minutes
+   Watch scaling: docker compose logs -f vendor-pricing | grep -E 'snapshot|SCALE'
+
+WARNING: package sun.awt.X11 not in java.desktop
+WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+Creating summariser <summary>
+Created the tree successfully using dealcart-100k.jmx
+Starting standalone test @ 2025 Sep 30 23:18:09 PDT (1759299489249)
+Waiting for possible Shutdown/StopTestNow/HeapDump/ThreadDump message on port 4445
+summary +    456 in 00:00:21 =   22.1/s Avg:   150 Min:    32 Max:   505 Err:     0 (0.00%) Active: 6 Started: 6 Finished: 0
+summary +   1969 in 00:00:30 =   65.6/s Avg:   157 Min:    28 Max:   533 Err:     0 (0.00%) Active: 15 Started: 15 Finished: 0
+summary =   2425 in 00:00:51 =   47.9/s Avg:   155 Min:    28 Max:   533 Err:     0 (0.00%)
+summary +   2261 in 00:00:30 =   75.4/s Avg:   247 Min:    50 Max:  1139 Err:     0 (0.00%) Active: 23 Started: 23 Finished: 0
+summary =   4686 in 00:01:21 =   58.1/s Avg:   199 Min:    28 Max:  1139 Err:     0 (0.00%)
+summary +   2263 in 00:00:30 =   75.5/s Avg:   357 Min:   160 Max:   772 Err:     0 (0.00%) Active: 31 Started: 31 Finished: 0
+summary =   6949 in 00:01:51 =   62.8/s Avg:   251 Min:    28 Max:  1139 Err:     0 (0.00%)
+summary +   2246 in 00:00:30 =   74.9/s Avg:   469 Min:   245 Max:  1326 Err:     0 (0.00%) Active: 40 Started: 40 Finished: 0
+summary =   9195 in 00:02:21 =   65.4/s Avg:   304 Min:    28 Max:  1326 Err:     0 (0.00%)
+summary +   2251 in 00:00:30 =   75.0/s Avg:   580 Min:   322 Max:   989 Err:     0 (0.00%) Active: 48 Started: 48 Finished: 0
+summary =  11446 in 00:02:51 =   67.1/s Avg:   358 Min:    28 Max:  1326 Err:     0 (0.00%)
+summary +   2205 in 00:00:30 =   73.6/s Avg:   676 Min:   411 Max:  1793 Err:    43 (1.95%) Active: 50 Started: 50 Finished: 0
+summary =  13651 in 00:03:21 =   68.0/s Avg:   410 Min:    28 Max:  1793 Err:    43 (0.31%)
+summary +   2261 in 00:00:30 =   75.4/s Avg:   662 Min:   469 Max:  1049 Err:     0 (0.00%) Active: 50 Started: 50 Finished: 0
+summary =  15912 in 00:03:51 =   69.0/s Avg:   445 Min:    28 Max:  1793 Err:    43 (0.27%)
+summary +   2246 in 00:00:30 =   74.9/s Avg:   667 Min:   412 Max:  1725 Err:    12 (0.53%) Active: 50 Started: 50 Finished: 0
+summary =  18158 in 00:04:21 =   69.7/s Avg:   473 Min:    28 Max:  1793 Err:    55 (0.30%)
+summary +   2286 in 00:00:30 =   76.1/s Avg:   657 Min:   433 Max:  1122 Err:     0 (0.00%) Active: 50 Started: 50 Finished: 0
+summary =  20444 in 00:04:51 =   70.3/s Avg:   493 Min:    28 Max:  1793 Err:    55 (0.27%)
+summary +   2264 in 00:00:30 =   75.5/s Avg:   661 Min:   453 Max:  1540 Err:     9 (0.40%) Active: 50 Started: 50 Finished: 0
+summary =  22708 in 00:05:21 =   70.8/s Avg:   510 Min:    28 Max:  1793 Err:    64 (0.28%)
+summary +   2281 in 00:00:30 =   75.9/s Avg:   658 Min:   453 Max:  1075 Err:     0 (0.00%) Active: 50 Started: 50 Finished: 0
+summary =  24989 in 00:05:51 =   71.3/s Avg:   524 Min:    28 Max:  1793 Err:    64 (0.26%)
+summary +   2224 in 00:00:30 =   74.2/s Avg:   673 Min:   357 Max:  1545 Err:     1 (0.04%) Active: 50 Started: 50 Finished: 0
+summary =  27213 in 00:06:21 =   71.5/s Avg:   536 Min:    28 Max:  1793 Err:    65 (0.24%)
+summary +   2310 in 00:00:30 =   76.9/s Avg:   649 Min:   430 Max:  1083 Err:     0 (0.00%) Active: 50 Started: 50 Finished: 0
+summary =  29523 in 00:06:51 =   71.9/s Avg:   545 Min:    28 Max:  1793 Err:    65 (0.22%)
+summary +   2247 in 00:00:30 =   75.0/s Avg:   667 Min:   432 Max:  1695 Err:    10 (0.45%) Active: 50 Started: 50 Finished: 0
+summary =  31770 in 00:07:21 =   72.1/s Avg:   553 Min:    28 Max:  1793 Err:    75 (0.24%)
+summary +   2305 in 00:00:30 =   76.8/s Avg:   651 Min:   449 Max:  1113 Err:     0 (0.00%) Active: 50 Started: 50 Finished: 0
+summary =  34075 in 00:07:51 =   72.4/s Avg:   560 Min:    28 Max:  1793 Err:    75 (0.22%)
+summary +   2252 in 00:00:30 =   75.1/s Avg:   665 Min:   459 Max:  1414 Err:     0 (0.00%) Active: 50 Started: 50 Finished: 0
+summary =  36327 in 00:08:21 =   72.6/s Avg:   566 Min:    28 Max:  1793 Err:    75 (0.21%)
+summary +   2322 in 00:00:30 =   77.4/s Avg:   645 Min:   442 Max:  1111 Err:     0 (0.00%) Active: 50 Started: 50 Finished: 0
+summary =  38649 in 00:08:51 =   72.8/s Avg:   571 Min:    28 Max:  1793 Err:    75 (0.19%)
+summary +   2257 in 00:00:30 =   75.2/s Avg:   664 Min:   406 Max:  1591 Err:     8 (0.35%) Active: 50 Started: 50 Finished: 0
+summary =  40906 in 00:09:21 =   73.0/s Avg:   576 Min:    28 Max:  1793 Err:    83 (0.20%)
+summary +   2292 in 00:00:30 =   76.3/s Avg:   655 Min:   450 Max:  1077 Err:     0 (0.00%) Active: 50 Started: 50 Finished: 0
+summary =  43198 in 00:09:51 =   73.1/s Avg:   580 Min:    28 Max:  1793 Err:    83 (0.19%)
+summary +   2233 in 00:00:30 =   74.5/s Avg:   671 Min:   337 Max:  1669 Err:     3 (0.13%) Active: 50 Started: 50 Finished: 0
+summary =  45431 in 00:10:21 =   73.2/s Avg:   585 Min:    28 Max:  1793 Err:    86 (0.19%)
+summary +   2309 in 00:00:30 =   76.9/s Avg:   648 Min:   447 Max:  1060 Err:     0 (0.00%) Active: 50 Started: 50 Finished: 0
+summary =  47740 in 00:10:51 =   73.4/s Avg:   588 Min:    28 Max:  1793 Err:    86 (0.18%)
+summary +   2244 in 00:00:30 =   74.8/s Avg:   668 Min:   434 Max:  1654 Err:     9 (0.40%) Active: 50 Started: 50 Finished: 0
+summary =  49984 in 00:11:21 =   73.4/s Avg:   592 Min:    28 Max:  1793 Err:    95 (0.19%)
+summary +   2281 in 00:00:30 =   76.1/s Avg:   656 Min:   451 Max:  1075 Err:     0 (0.00%) Active: 50 Started: 50 Finished: 0
+summary =  52265 in 00:11:51 =   73.5/s Avg:   594 Min:    28 Max:  1793 Err:    95 (0.18%)
+summary +   2252 in 00:00:30 =   75.1/s Avg:   667 Min:   408 Max:  1513 Err:     1 (0.04%) Active: 50 Started: 50 Finished: 0
+summary =  54517 in 00:12:21 =   73.6/s Avg:   597 Min:    28 Max:  1793 Err:    96 (0.18%)
+summary +   2303 in 00:00:30 =   76.8/s Avg:   649 Min:   446 Max:  1078 Err:     0 (0.00%) Active: 50 Started: 50 Finished: 0
+summary =  56820 in 00:12:51 =   73.7/s Avg:   599 Min:    28 Max:  1793 Err:    96 (0.17%)
+summary +   2194 in 00:00:30 =   73.1/s Avg:   685 Min:   453 Max:  2040 Err:    40 (1.82%) Active: 50 Started: 50 Finished: 0
+summary =  59014 in 00:13:21 =   73.7/s Avg:   603 Min:    28 Max:  2040 Err:   136 (0.23%)
+summary +   2287 in 00:00:30 =   76.3/s Avg:   654 Min:   438 Max:  1086 Err:     0 (0.00%) Active: 50 Started: 50 Finished: 0
+summary =  61301 in 00:13:51 =   73.8/s Avg:   605 Min:    28 Max:  2040 Err:   136 (0.22%)
+summary +   2198 in 00:00:30 =   73.3/s Avg:   680 Min:   452 Max:  1567 Err:     9 (0.41%) Active: 50 Started: 50 Finished: 0
+summary =  63499 in 00:14:21 =   73.8/s Avg:   607 Min:    28 Max:  2040 Err:   145 (0.23%)
+summary +   2262 in 00:00:30 =   75.3/s Avg:   664 Min:   443 Max:  1095 Err:     0 (0.00%) Active: 50 Started: 50 Finished: 0
+summary =  65761 in 00:14:51 =   73.8/s Avg:   609 Min:    28 Max:  2040 Err:   145 (0.22%)
+summary +   2299 in 00:00:30 =   76.7/s Avg:   650 Min:   404 Max:  1496 Err:     0 (0.00%) Active: 50 Started: 50 Finished: 0
+summary =  68060 in 00:15:21 =   73.9/s Avg:   611 Min:    28 Max:  2040 Err:   145 (0.21%)
+summary +   2354 in 00:00:30 =   78.4/s Avg:   638 Min:   421 Max:  1122 Err:     0 (0.00%) Active: 50 Started: 50 Finished: 0
+summary =  70414 in 00:15:51 =   74.1/s Avg:   611 Min:    28 Max:  2040 Err:   145 (0.21%)
+summary +   2215 in 00:00:30 =   73.9/s Avg:   676 Min:   441 Max:  1278 Err:     0 (0.00%) Active: 50 Started: 50 Finished: 0
+summary =  72629 in 00:16:21 =   74.1/s Avg:   613 Min:    28 Max:  2040 Err:   145 (0.20%)
+summary +   2272 in 00:00:30 =   75.7/s Avg:   657 Min:   456 Max:  1143 Err:     0 (0.00%) Active: 50 Started: 50 Finished: 0
+summary =  74901 in 00:16:51 =   74.1/s Avg:   615 Min:    28 Max:  2040 Err:   145 (0.19%)
+summary +   2207 in 00:00:30 =   73.5/s Avg:   680 Min:   429 Max:  1504 Err:     0 (0.00%) Active: 50 Started: 50 Finished: 0
+summary =  77108 in 00:17:21 =   74.1/s Avg:   617 Min:    28 Max:  2040 Err:   145 (0.19%)
+summary +   2292 in 00:00:30 =   76.4/s Avg:   646 Min:   400 Max:  1060 Err:     0 (0.00%) Active: 49 Started: 50 Finished: 1
+summary =  79400 in 00:17:51 =   74.2/s Avg:   617 Min:    28 Max:  2040 Err:   145 (0.18%)
+summary +   2304 in 00:00:30 =   76.8/s Avg:   624 Min:   382 Max:  1658 Err:     1 (0.04%) Active: 47 Started: 50 Finished: 3
+summary =  81704 in 00:18:21 =   74.2/s Avg:   618 Min:    28 Max:  2040 Err:   146 (0.18%)
+summary +   2277 in 00:00:30 =   75.9/s Avg:   607 Min:   315 Max:  1032 Err:     0 (0.00%) Active: 44 Started: 50 Finished: 6
+summary =  83981 in 00:18:51 =   74.3/s Avg:   617 Min:    28 Max:  2040 Err:   146 (0.17%)
+summary +   2199 in 00:00:30 =   73.3/s Avg:   600 Min:   334 Max:  1865 Err:    28 (1.27%) Active: 43 Started: 50 Finished: 7
+summary =  86180 in 00:19:21 =   74.3/s Avg:   617 Min:    28 Max:  2040 Err:   174 (0.20%)
+summary +   2272 in 00:00:30 =   75.6/s Avg:   554 Min:   346 Max:  1011 Err:     0 (0.00%) Active: 40 Started: 50 Finished: 10
+summary =  88452 in 00:19:51 =   74.3/s Avg:   615 Min:    28 Max:  2040 Err:   174 (0.20%)
+summary +   2250 in 00:00:30 =   75.1/s Avg:   521 Min:   285 Max:  1552 Err:     3 (0.13%) Active: 39 Started: 50 Finished: 11
+summary =  90702 in 00:20:21 =   74.3/s Avg:   613 Min:    28 Max:  2040 Err:   177 (0.20%)
+summary +   2338 in 00:00:30 =   77.9/s Avg:   474 Min:   273 Max:   915 Err:     0 (0.00%) Active: 36 Started: 50 Finished: 14
+summary =  93040 in 00:20:51 =   74.4/s Avg:   609 Min:    28 Max:  2040 Err:   177 (0.19%)
+summary +   2219 in 00:00:30 =   74.1/s Avg:   445 Min:   242 Max:  1177 Err:     0 (0.00%) Active: 31 Started: 50 Finished: 19
+summary =  95259 in 00:21:21 =   74.4/s Avg:   606 Min:    28 Max:  2040 Err:   177 (0.19%)
+summary +   2262 in 00:00:30 =   75.3/s Avg:   373 Min:   162 Max:   821 Err:     0 (0.00%) Active: 24 Started: 50 Finished: 26
+summary =  97521 in 00:21:51 =   74.4/s Avg:   600 Min:    28 Max:  2040 Err:   177 (0.18%)
+summary +   2231 in 00:00:30 =   74.5/s Avg:   248 Min:    33 Max:  1182 Err:     0 (0.00%) Active: 9 Started: 50 Finished: 41
+summary =  99752 in 00:22:21 =   74.4/s Avg:   592 Min:    28 Max:  2040 Err:   177 (0.18%)
+summary +    248 in 00:00:08 =   32.0/s Avg:   153 Min:    32 Max:   402 Err:     0 (0.00%) Active: 0 Started: 50 Finished: 50
+summary = 100000 in 00:22:28 =   74.2/s Avg:   591 Min:    28 Max:  2040 Err:   177 (0.18%)
+Tidying up ...    @ 2025 Sep 30 23:40:37 PDT (1759300837764)
+... end of run
+
+✅ 100K test complete in 1355s!
+   Results: /Users/prajwal/Documents/dealcart/loadtest/results-100k/index.html
+
+Extracting 100K metrics...
+100K Test Results:
+  Total Requests:  101062
+  Duration:        1355s
+  Throughput:      74.5 TPS
+  Average Latency: 586ms
+  P50 Latency:     604ms
+  P95 Latency:     836ms
+  P99 Latency:     1039ms
+  Errors:          177 (0%)
+
+=========================================
+SCALE TEST SUMMARY
+=========================================
+
+Metric              | 50K Test      | 100K Test     | Trend
+--------------------|---------------|---------------|-------
+Total Requests      | 51332        | 101062       | -
+Duration            | 686s        | 1355s      | -
+Throughput          | 74.8 TPS   | 74.5 TPS  | -
+Average Latency     | 561ms      | 586ms     | -
+P50 Latency         | 589ms      | 604ms     | -
+P95 Latency         | 832ms      | 836ms     | -
+P99 Latency         | 1064ms      | 1039ms     | -
+Error Rate          | 0%       | 0%      | -
+
+Acceptance Criteria:
+❌ 50K P95 ≤ 500ms: FAIL (832 ms)
+❌ 100K P95 ≤ 500ms: FAIL (836 ms)
+✅ 50K Error Rate < 1%: PASS (0%)
+✅ 100K Error Rate < 1%: PASS (0%)
+
+=========================================
+View detailed reports:
+  50K Test:   open /Users/prajwal/Documents/dealcart/loadtest/results-50k/index.html
+  100K Test:  open /Users/prajwal/Documents/dealcart/loadtest/results-100k/index.html
+
+Check autoscaler behavior:
+  docker compose -f /Users/prajwal/Documents/dealcart/infra/docker-compose.yml logs vendor-pricing | grep -E 'snapshot|SCALE' | tail -40
+=========================================

@@ -1,0 +1,136 @@
+=========================================
+DealCart+ High-Volume Scale Tests
+=========================================
+
+WARNING: package sun.awt.X11 not in java.desktop
+✅ JMeter found: WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+
+Checking Docker services...
+✅ Services running
+
+Verifying autoscaling is enabled...
+vendor-pricing  | [main] INFO dev.dealcart.pricing.VendorPricingServer - Autoscaling config: min=8, max=64, step=8, targetP95=250ms, lowerP95=200ms, window=2000
+
+Cleaning old scale test results...
+
+=========================================
+TEST 1: 50K REQUESTS (50 threads × 1000 loops)
+=========================================
+
+🚀 Starting 50K request test...
+   Expected duration: ~5-7 minutes
+   Watch scaling: docker compose logs -f vendor-pricing | grep -E 'snapshot|SCALE'
+
+WARNING: package sun.awt.X11 not in java.desktop
+WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+Creating summariser <summary>
+Created the tree successfully using dealcart-50k.jmx
+Starting standalone test @ 2025 Sep 30 22:59:49 PDT (1759298389406)
+Waiting for possible Shutdown/StopTestNow/HeapDump/ThreadDump message on port 4445
+summary +    103 in 00:00:10 =    9.8/s Avg:   155 Min:    56 Max:   515 Err:     0 (0.00%) Active: 2 Started: 5 Finished: 3
+summary +    375 in 00:00:30 =   12.5/s Avg:   155 Min:    40 Max:   995 Err:     0 (0.00%) Active: 2 Started: 17 Finished: 15
+summary =    478 in 00:00:41 =   11.8/s Avg:   155 Min:    40 Max:   995 Err:     0 (0.00%)
+summary +    372 in 00:00:30 =   12.4/s Avg:   153 Min:    32 Max:   532 Err:     0 (0.00%) Active: 2 Started: 30 Finished: 28
+summary =    850 in 00:01:11 =   12.0/s Avg:   154 Min:    32 Max:   995 Err:     0 (0.00%)
+summary +    376 in 00:00:30 =   12.5/s Avg:   159 Min:    27 Max:   605 Err:     0 (0.00%) Active: 2 Started: 42 Finished: 40
+summary =   1226 in 00:01:41 =   12.2/s Avg:   156 Min:    27 Max:   995 Err:     0 (0.00%)
+summary +    274 in 00:00:24 =   11.5/s Avg:   153 Min:    30 Max:   529 Err:     0 (0.00%) Active: 0 Started: 50 Finished: 50
+summary =   1500 in 00:02:04 =   12.1/s Avg:   155 Min:    27 Max:   995 Err:     0 (0.00%)
+Tidying up ...    @ 2025 Sep 30 23:01:53 PDT (1759298513836)
+... end of run
+
+✅ 50K test complete in 127s!
+   Results: /Users/prajwal/Documents/dealcart/loadtest/results-50k/index.html
+
+Extracting 50K metrics...
+50K Test Results:
+  Total Requests:  1500
+  Duration:        127s
+  Throughput:      11.8 TPS
+  Average Latency: 155ms
+  P50 Latency:     134ms
+  P95 Latency:     328ms
+  P99 Latency:     476ms
+  Errors:          0 (0%)
+
+Waiting 30 seconds for system to stabilize...
+
+=========================================
+TEST 2: 100K REQUESTS (50 threads × 2000 loops)
+=========================================
+
+🚀 Starting 100K request test...
+   Expected duration: ~10-15 minutes
+   Watch scaling: docker compose logs -f vendor-pricing | grep -E 'snapshot|SCALE'
+
+WARNING: package sun.awt.X11 not in java.desktop
+WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+Creating summariser <summary>
+Created the tree successfully using dealcart-100k.jmx
+Starting standalone test @ 2025 Sep 30 23:02:26 PDT (1759298546788)
+Waiting for possible Shutdown/StopTestNow/HeapDump/ThreadDump message on port 4445
+summary +     20 in 00:00:03 =    6.4/s Avg:   147 Min:    60 Max:   388 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+summary +    241 in 00:00:30 =    8.0/s Avg:   153 Min:    38 Max:   516 Err:     0 (0.00%) Active: 2 Started: 10 Finished: 8
+summary =    261 in 00:00:33 =    7.9/s Avg:   153 Min:    38 Max:   516 Err:     0 (0.00%)
+summary +    256 in 00:00:30 =    8.5/s Avg:   164 Min:    30 Max:   631 Err:     0 (0.00%) Active: 1 Started: 18 Finished: 17
+summary =    517 in 00:01:03 =    8.2/s Avg:   158 Min:    30 Max:   631 Err:     0 (0.00%)
+summary +    244 in 00:00:30 =    8.2/s Avg:   152 Min:    38 Max:   516 Err:     0 (0.00%) Active: 1 Started: 26 Finished: 25
+summary =    761 in 00:01:33 =    8.2/s Avg:   156 Min:    30 Max:   631 Err:     0 (0.00%)
+summary +    248 in 00:00:30 =    8.3/s Avg:   163 Min:    40 Max:   734 Err:     0 (0.00%) Active: 2 Started: 35 Finished: 33
+summary =   1009 in 00:02:03 =    8.2/s Avg:   158 Min:    30 Max:   734 Err:     0 (0.00%)
+summary +    260 in 00:00:30 =    8.6/s Avg:   156 Min:    33 Max:   506 Err:     0 (0.00%) Active: 1 Started: 43 Finished: 42
+summary =   1269 in 00:02:33 =    8.3/s Avg:   157 Min:    30 Max:   734 Err:     0 (0.00%)
+summary +    231 in 00:00:29 =    8.0/s Avg:   157 Min:    43 Max:   643 Err:     0 (0.00%) Active: 0 Started: 50 Finished: 50
+summary =   1500 in 00:03:02 =    8.2/s Avg:   157 Min:    30 Max:   734 Err:     0 (0.00%)
+Tidying up ...    @ 2025 Sep 30 23:05:29 PDT (1759298729111)
+... end of run
+
+✅ 100K test complete in 186s!
+   Results: /Users/prajwal/Documents/dealcart/loadtest/results-100k/index.html
+
+Extracting 100K metrics...
+100K Test Results:
+  Total Requests:  1500
+  Duration:        186s
+  Throughput:      8.0 TPS
+  Average Latency: 157ms
+  P50 Latency:     135ms
+  P95 Latency:     341ms
+  P99 Latency:     507ms
+  Errors:          0 (0%)
+
+=========================================
+SCALE TEST SUMMARY
+=========================================
+
+Metric              | 50K Test      | 100K Test     | Trend
+--------------------|---------------|---------------|-------
+Total Requests      | 1500        | 1500       | -
+Duration            | 127s        | 186s      | -
+Throughput          | 11.8 TPS   | 8.0 TPS  | -
+Average Latency     | 155ms      | 157ms     | -
+P50 Latency         | 134ms      | 135ms     | -
+P95 Latency         | 328ms      | 341ms     | -
+P99 Latency         | 476ms      | 507ms     | -
+Error Rate          | 0%       | 0%      | -
+
+Acceptance Criteria:
+✅ 50K P95 ≤ 500ms: PASS (328 ms)
+✅ 100K P95 ≤ 500ms: PASS (341 ms)
+✅ 50K Error Rate < 1%: PASS (0%)
+✅ 100K Error Rate < 1%: PASS (0%)
+
+=========================================
+View detailed reports:
+  50K Test:   open /Users/prajwal/Documents/dealcart/loadtest/results-50k/index.html
+  100K Test:  open /Users/prajwal/Documents/dealcart/loadtest/results-100k/index.html
+
+Check autoscaler behavior:
+  docker compose -f /Users/prajwal/Documents/dealcart/infra/docker-compose.yml logs vendor-pricing | grep -E 'snapshot|SCALE' | tail -40
+=========================================
