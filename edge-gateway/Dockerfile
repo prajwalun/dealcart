@@ -5,7 +5,7 @@ FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 
 # Copy the Spring Boot JAR
-COPY target/edge-gateway-*.jar app.jar
+COPY edge-gateway/target/edge-gateway-*.jar app.jar
 
 # Expose the default port
 EXPOSE 8080

@@ -5,7 +5,7 @@ FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 
 # Copy the fat JAR
-COPY target/checkout-*.jar app.jar
+COPY checkout/target/checkout-*.jar app.jar
 
 # Expose the default port
 EXPOSE 9200

@@ -5,7 +5,7 @@ FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 
 # Copy the fat JAR
-COPY target/vendor-mock-*.jar app.jar
+COPY vendor-mock/target/vendor-mock-*.jar app.jar
 
 # Expose the default port
 EXPOSE 9101
