@@ -209,6 +209,7 @@ services:
 
 ## 📚 Documentation
 
+- [Project Deep-Dive](PROJECT_DEEP_DIVE.md) - Comprehensive technical analysis
 - [Load Testing Guide](docs/load-testing-explained.md)
 - [Horizontal Scaling Plan](docs/horizontal-scaling-plan.md)
 - [CI/CD Documentation](docs/ci-cd.md)
