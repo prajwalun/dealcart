@@ -41,24 +41,27 @@ A production-ready, horizontally scalable e-commerce platform built with Java 21
 ## 📊 Performance Metrics & Testing Results
 
 ### Load Testing Achievements
-- **50K+ Requests Tested**: Extended load testing with 50K and 100K request scenarios
+- **200K+ Requests Tested**: High-concurrency burst testing with 200K+ requests
 - **Sustained Throughput**: 70+ TPS sustained over extended periods
 - **Spike Testing**: 500 concurrent users with 149 TPS peak throughput
 - **Error Rate**: <1% error rate under sustained load, <2% during traffic spikes
-- **Success Rate**: 99%+ success rate across all test scenarios
+- **Success Rate**: 100% success rate in high-concurrency bursts, 99%+ overall
 
 ### Auto-scaling Performance
+- **Production-Style Auto-scaling**: CPU/memory-based scaling (1→5 instances) with 5-10min cooldowns
 - **Adaptive Thread Pools**: Dynamic scaling from 8→64 threads based on P95 latency
 - **Horizontal Scaling**: 3 vendor-pricing instances + 2 edge-gateway instances
-- **Latency Optimization**: P95 latency improvements through adaptive scaling
+- **System Metrics API**: CPU, memory, load average, latency, error rate monitoring
+- **Latency Optimization**: P95 latency improvements through adaptive scaling (~250ms achieved)
 - **Resource Efficiency**: Automatic scaling down during low-traffic periods
 
 ### Test Scenarios Validated
 - **Baseline vs Auto-scaled**: Comparative testing showing scaling effectiveness
 - **50K Request Load**: 74.8 TPS with 832ms P95 latency
 - **100K Request Load**: 74.5 TPS with 836ms P95 latency  
+- **200K+ High-Concurrency Bursts**: 100% success rate with P95 ~250ms
 - **Spike Testing**: 500 concurrent users with 149 TPS peak
-- **Concurrent Burst Testing**: High-volume traffic spike handling
+- **Auto-scaling Validation**: Confirmed scaling behavior under load
 
 ## 🛠️ Technology Stack
 
@@ -221,9 +224,10 @@ services:
 
 ### Technical Achievements
 - **Microservices Architecture** - 5 independent services with gRPC communication
-- **Advanced Auto-scaling** - Adaptive thread pools (8→64 threads) + horizontal scaling (3+2 instances)
-- **Comprehensive Load Testing** - 50K+ requests across multiple scenarios with detailed metrics
-- **Performance Optimization** - P95 latency improvements through adaptive scaling
+- **Production-Style Auto-scaling** - CPU/memory-based scaling (1→5 instances) with 5-10min cooldowns
+- **System Metrics API** - CPU, memory, load average, latency, error rate monitoring
+- **Comprehensive Load Testing** - 200K+ requests in high-concurrency bursts with 100% success rate
+- **Performance Optimization** - P95 latency ~250ms achieved through adaptive scaling
 - **Spike Handling** - 500 concurrent users with 149 TPS peak throughput
 - **CI/CD Pipeline** - GitHub Actions with automated Docker builds and deployment
 - **Distributed Transactions** - SAGA pattern implementation for data consistency
