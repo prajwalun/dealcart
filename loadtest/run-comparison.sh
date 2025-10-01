@@ -75,6 +75,7 @@ cd "$SCRIPT_DIR"
 jmeter -n -t dealcart.jmx \
   -l baseline.jtl \
   -e -o results-baseline \
+  -Juser.dir="$PROJECT_ROOT" \
   -Jjmeter.reportgenerator.overall_granularity=1000
 
 echo ""
@@ -116,6 +117,7 @@ cd "$SCRIPT_DIR"
 jmeter -n -t dealcart.jmx \
   -l auto.jtl \
   -e -o results-autoscaled \
+  -Juser.dir="$PROJECT_ROOT" \
   -Jjmeter.reportgenerator.overall_granularity=1000
 
 echo ""
@@ -134,17 +136,17 @@ echo ""
 # Extract key metrics from JTL files
 echo "Extracting metrics..."
 
-# Baseline P95/P99
-BASELINE_P95=$(awk -F',' 'NR>1 {sum+=$2; times[NR]=$2} END {asort(times); print times[int(NR*0.95)]}' baseline.jtl)
-BASELINE_P99=$(awk -F',' 'NR>1 {sum+=$2; times[NR]=$2} END {asort(times); print times[int(NR*0.99)]}' baseline.jtl)
+# Baseline metrics - use sort instead of awk asort (BSD awk compatible)
 BASELINE_AVG=$(awk -F',' 'NR>1 {sum+=$2; count++} END {print int(sum/count)}' baseline.jtl)
+BASELINE_P95=$(awk -F',' 'NR>1 {print $2}' baseline.jtl | sort -n | awk 'BEGIN{c=0} {a[c]=$1; c++} END{print a[int(c*0.95)]}')
+BASELINE_P99=$(awk -F',' 'NR>1 {print $2}' baseline.jtl | sort -n | awk 'BEGIN{c=0} {a[c]=$1; c++} END{print a[int(c*0.99)]}')
 BASELINE_COUNT=$(awk -F',' 'NR>1 {count++} END {print count}' baseline.jtl)
 BASELINE_ERRORS=$(awk -F',' 'NR>1 && $8=="false" {errors++} END {print errors+0}' baseline.jtl)
 
-# Autoscaled P95/P99
-AUTO_P95=$(awk -F',' 'NR>1 {sum+=$2; times[NR]=$2} END {asort(times); print times[int(NR*0.95)]}' auto.jtl)
-AUTO_P99=$(awk -F',' 'NR>1 {sum+=$2; times[NR]=$2} END {asort(times); print times[int(NR*0.99)]}' auto.jtl)
+# Autoscaled metrics
 AUTO_AVG=$(awk -F',' 'NR>1 {sum+=$2; count++} END {print int(sum/count)}' auto.jtl)
+AUTO_P95=$(awk -F',' 'NR>1 {print $2}' auto.jtl | sort -n | awk 'BEGIN{c=0} {a[c]=$1; c++} END{print a[int(c*0.95)]}')
+AUTO_P99=$(awk -F',' 'NR>1 {print $2}' auto.jtl | sort -n | awk 'BEGIN{c=0} {a[c]=$1; c++} END{print a[int(c*0.99)]}')
 AUTO_COUNT=$(awk -F',' 'NR>1 {count++} END {print count}' auto.jtl)
 AUTO_ERRORS=$(awk -F',' 'NR>1 && $8=="false" {errors++} END {print errors+0}' auto.jtl)
 

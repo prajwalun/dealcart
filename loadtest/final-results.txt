@@ -1,0 +1,124 @@
+=========================================
+DealCart+ Load Test Comparison
+=========================================
+
+WARNING: package sun.awt.X11 not in java.desktop
+✅ JMeter found: WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+
+Checking Docker services...
+✅ Services running
+
+Cleaning old results...
+
+=========================================
+TEST 1: BASELINE (Fixed pool, no scaling)
+=========================================
+
+Setting ADAPTIVE_MAX=8 (locking pool size)...
+Restarting vendor-pricing...
+ Container vendor-mock-2  Running
+ Container vendor-mock-1  Running
+ Container vendor-pricing  Recreate
+ Container vendor-pricing  Recreated
+ Container vendor-mock-2  Waiting
+ Container vendor-mock-1  Waiting
+ Container vendor-mock-1  Healthy
+ Container vendor-mock-2  Healthy
+ Container vendor-pricing  Starting
+ Container vendor-pricing  Started
+Waiting for service to be healthy (15 seconds)...
+Verifying configuration...
+vendor-pricing  | [main] INFO dev.dealcart.pricing.VendorPricingServer - Autoscaling config: min=8, max=8, step=8, targetP95=250ms, lowerP95=200ms, window=2000
+
+🚀 Starting BASELINE test (10 minutes at ~200 RPS)...
+   Watch progress: tail -f jmeter.log (in another terminal)
+
+WARNING: package sun.awt.X11 not in java.desktop
+WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+Creating summariser <summary>
+Created the tree successfully using dealcart.jmx
+Starting standalone test @ 2025 Sep 30 22:54:14 PDT (1759298054979)
+Waiting for possible Shutdown/StopTestNow/HeapDump/ThreadDump message on port 4445
+summary +    278 in 00:00:15 =   18.6/s Avg:   163 Min:    30 Max:   540 Err:     0 (0.00%) Active: 4 Started: 13 Finished: 9
+summary +    751 in 00:00:30 =   25.0/s Avg:   161 Min:    29 Max:   516 Err:     0 (0.00%) Active: 4 Started: 38 Finished: 34
+summary =   1029 in 00:00:45 =   22.9/s Avg:   162 Min:    29 Max:   540 Err:     0 (0.00%)
+summary +    471 in 00:00:23 =   20.1/s Avg:   153 Min:    32 Max:   518 Err:     0 (0.00%) Active: 0 Started: 50 Finished: 50
+summary =   1500 in 00:01:08 =   21.9/s Avg:   159 Min:    29 Max:   540 Err:     0 (0.00%)
+Tidying up ...    @ 2025 Sep 30 22:55:23 PDT (1759298123463)
+... end of run
+
+✅ BASELINE test complete!
+   Results: /Users/prajwal/Documents/dealcart/loadtest/results-baseline/index.html
+
+=========================================
+TEST 2: AUTOSCALED (Adaptive pool 8-64)
+=========================================
+
+Restoring ADAPTIVE_MAX=64 (enabling autoscaling)...
+Restarting vendor-pricing...
+ Container vendor-mock-2  Running
+ Container vendor-mock-1  Running
+ Container vendor-pricing  Recreate
+ Container vendor-pricing  Recreated
+ Container vendor-mock-2  Waiting
+ Container vendor-mock-1  Waiting
+ Container vendor-mock-2  Healthy
+ Container vendor-mock-1  Healthy
+ Container vendor-pricing  Starting
+ Container vendor-pricing  Started
+Waiting for service to be healthy (15 seconds)...
+Verifying configuration...
+vendor-pricing  | [main] INFO dev.dealcart.pricing.VendorPricingServer - Autoscaling config: min=8, max=64, step=8, targetP95=250ms, lowerP95=200ms, window=2000
+
+🚀 Starting AUTOSCALED test (10 minutes at ~200 RPS)...
+   Watch scaling: docker compose logs -f vendor-pricing | grep -E 'snapshot|SCALE'
+
+WARNING: package sun.awt.X11 not in java.desktop
+WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+Creating summariser <summary>
+Created the tree successfully using dealcart.jmx
+Starting standalone test @ 2025 Sep 30 22:55:43 PDT (1759298143453)
+Waiting for possible Shutdown/StopTestNow/HeapDump/ThreadDump message on port 4445
+summary +    326 in 00:00:16 =   19.8/s Avg:   156 Min:    36 Max:   581 Err:     0 (0.00%) Active: 4 Started: 14 Finished: 10
+summary +    742 in 00:00:30 =   24.7/s Avg:   161 Min:    31 Max:  1494 Err:     0 (0.00%) Active: 4 Started: 39 Finished: 35
+summary =   1068 in 00:00:46 =   23.0/s Avg:   159 Min:    31 Max:  1494 Err:     0 (0.00%)
+summary +    432 in 00:00:23 =   18.6/s Avg:   152 Min:    32 Max:   523 Err:     0 (0.00%) Active: 0 Started: 50 Finished: 50
+summary =   1500 in 00:01:10 =   21.5/s Avg:   157 Min:    31 Max:  1494 Err:     0 (0.00%)
+Tidying up ...    @ 2025 Sep 30 22:56:53 PDT (1759298213197)
+... end of run
+
+✅ AUTOSCALED test complete!
+   Results: /Users/prajwal/Documents/dealcart/loadtest/results-autoscaled/index.html
+
+=========================================
+COMPARISON SUMMARY
+=========================================
+
+Extracting metrics...
+Metric              | Baseline      | Autoscaled    | Improvement
+--------------------|---------------|---------------|-------------
+Average Latency     | 159ms       | 157ms       | -
+P95 Latency         | 345ms       | 325ms       | 0%
+P99 Latency         | 455ms       | 492ms       | 0%
+Total Requests      | 1500       | 1500       | -
+Errors              | 0         | 0         | -
+
+Acceptance Criteria:
+❌ P95 ≤ 250ms: FAIL (325 ms)
+✅ P99 ≤ 500ms: PASS (492 ms)
+✅ Autoscaled P95 < Baseline P95: PASS
+
+=========================================
+View detailed reports:
+  Baseline:    open /Users/prajwal/Documents/dealcart/loadtest/results-baseline/index.html
+  Autoscaled:  open /Users/prajwal/Documents/dealcart/loadtest/results-autoscaled/index.html
+
+Check autoscaler logs:
+  docker compose -f /Users/prajwal/Documents/dealcart/infra/docker-compose.yml logs vendor-pricing | grep -E 'snapshot|SCALE'
+=========================================

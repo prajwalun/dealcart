@@ -1,0 +1,100 @@
+=========================================
+DealCart+ Load Test Comparison
+=========================================
+
+WARNING: package sun.awt.X11 not in java.desktop
+✅ JMeter found: WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+
+Checking Docker services...
+✅ Services running
+
+Cleaning old results...
+
+=========================================
+TEST 1: BASELINE (Fixed pool, no scaling)
+=========================================
+
+Setting ADAPTIVE_MAX=8 (locking pool size)...
+Restarting vendor-pricing...
+ Container vendor-mock-2  Running
+ Container vendor-mock-1  Running
+ Container vendor-pricing  Recreate
+ Container vendor-pricing  Recreated
+ Container vendor-mock-1  Waiting
+ Container vendor-mock-2  Waiting
+ Container vendor-mock-1  Healthy
+ Container vendor-mock-2  Healthy
+ Container vendor-pricing  Starting
+ Container vendor-pricing  Started
+Waiting for service to be healthy (15 seconds)...
+Verifying configuration...
+vendor-pricing  | [main] INFO dev.dealcart.pricing.VendorPricingServer - Autoscaling config: min=8, max=8, step=8, targetP95=250ms, lowerP95=200ms, window=2000
+
+🚀 Starting BASELINE test (10 minutes at ~200 RPS)...
+   Watch progress: tail -f jmeter.log (in another terminal)
+
+WARNING: package sun.awt.X11 not in java.desktop
+WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+Creating summariser <summary>
+Created the tree successfully using dealcart.jmx
+Starting standalone test @ 2025 Sep 30 22:51:00 PDT (1759297860161)
+Waiting for possible Shutdown/StopTestNow/HeapDump/ThreadDump message on port 4445
+summary =      0 in 00:00:00 = ******/s Avg:     0 Min: 9223372036854775807 Max: -9223372036854775808 Err:     0 (0.00%)
+Tidying up ...    @ 2025 Sep 30 22:51:30 PDT (1759297890035)
+Error generating the report: java.lang.NullPointerException: Cannot invoke "org.apache.jmeter.report.processor.MapResultData.getResult(String)" because "resultData" is null
+... end of run
+
+✅ BASELINE test complete!
+   Results: /Users/prajwal/Documents/dealcart/loadtest/results-baseline/index.html
+
+=========================================
+TEST 2: AUTOSCALED (Adaptive pool 8-64)
+=========================================
+
+Restoring ADAPTIVE_MAX=64 (enabling autoscaling)...
+Restarting vendor-pricing...
+ Container vendor-mock-1  Running
+ Container vendor-mock-2  Running
+ Container vendor-pricing  Recreate
+ Container vendor-pricing  Recreated
+ Container vendor-mock-2  Waiting
+ Container vendor-mock-1  Waiting
+ Container vendor-mock-2  Healthy
+ Container vendor-mock-1  Healthy
+ Container vendor-pricing  Starting
+ Container vendor-pricing  Started
+Waiting for service to be healthy (15 seconds)...
+Verifying configuration...
+vendor-pricing  | [main] INFO dev.dealcart.pricing.VendorPricingServer - Autoscaling config: min=8, max=64, step=8, targetP95=250ms, lowerP95=200ms, window=2000
+
+🚀 Starting AUTOSCALED test (10 minutes at ~200 RPS)...
+   Watch scaling: docker compose logs -f vendor-pricing | grep -E 'snapshot|SCALE'
+
+WARNING: package sun.awt.X11 not in java.desktop
+WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+Creating summariser <summary>
+Created the tree successfully using dealcart.jmx
+Starting standalone test @ 2025 Sep 30 22:51:49 PDT (1759297909439)
+Waiting for possible Shutdown/StopTestNow/HeapDump/ThreadDump message on port 4445
+summary =      0 in 00:00:00 = ******/s Avg:     0 Min: 9223372036854775807 Max: -9223372036854775808 Err:     0 (0.00%)
+Tidying up ...    @ 2025 Sep 30 22:52:19 PDT (1759297939021)
+Error generating the report: java.lang.NullPointerException: Cannot invoke "org.apache.jmeter.report.processor.MapResultData.getResult(String)" because "resultData" is null
+... end of run
+
+✅ AUTOSCALED test complete!
+   Results: /Users/prajwal/Documents/dealcart/loadtest/results-autoscaled/index.html
+
+=========================================
+COMPARISON SUMMARY
+=========================================
+
+Extracting metrics...
+awk: division by zero
+ input record number 1, file baseline.jtl
+ source line number 1
