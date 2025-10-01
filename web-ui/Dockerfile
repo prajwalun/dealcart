@@ -5,7 +5,7 @@ FROM node:20-alpine AS deps
 WORKDIR /app
 
 # Copy package files
-COPY package.json pnpm-lock.yaml* ./
+COPY web-ui/package.json web-ui/pnpm-lock.yaml* ./
 
 # Install pnpm and dependencies
 RUN npm install -g pnpm && \
@@ -17,7 +17,7 @@ WORKDIR /app
 
 # Copy dependencies
 COPY --from=deps /app/node_modules ./node_modules
-COPY . .
+COPY web-ui/ .
 
 # Set environment variable for build
 ENV NEXT_PUBLIC_API_BASE_URL=
