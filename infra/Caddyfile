@@ -5,14 +5,30 @@
         respond 200
     }
     
-    # API routes go to edge-gateway
+    # API routes go to edge-gateway with load balancing across replicas
     route /api/* {
-        reverse_proxy edge-gateway:8080
+        reverse_proxy edge-gateway:8080 {
+            # Docker Compose automatically load-balances across replicas
+            # using DNS round-robin when you use the service name
+            lb_policy round_robin
+            lb_try_duration 5s
+            
+            # Health check to remove unhealthy instances
+            health_uri /actuator/health
+            health_interval 10s
+            health_timeout 5s
+            health_status 200
+            
+            # Fail over quickly if instance is down
+            fail_duration 10s
+        }
     }
     
     # Actuator health check
     route /actuator/* {
-        reverse_proxy edge-gateway:8080
+        reverse_proxy edge-gateway:8080 {
+            lb_policy round_robin
+        }
     }
     
     # All other routes (UI) go to Next.js app

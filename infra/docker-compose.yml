@@ -39,16 +39,16 @@ services:
     networks:
       - dealcart
 
-  # Vendor Pricing Aggregator (with Autoscaling)
+  # Vendor Pricing Aggregator (with Vertical Autoscaling + Horizontal Scaling)
   vendor-pricing:
     build:
       context: ../vendor-pricing
       dockerfile: Dockerfile
-    container_name: vendor-pricing
+    # Remove container_name to allow multiple replicas
     environment:
       - PORT=9100
       - VENDORS=vendor-mock-1:9101:amz,vendor-mock-2:9102:bb
-      # Autoscaling configuration
+      # Vertical autoscaling configuration (per instance)
       - ADAPTIVE_MIN=8
       - ADAPTIVE_MAX=64
       - ADAPTIVE_STEP=8
@@ -69,6 +69,11 @@ services:
       start_period: 10s
     networks:
       - dealcart
+    # Horizontal scaling: run 3 instances by default
+    deploy:
+      replicas: 3
+      restart_policy:
+        condition: on-failure
 
   # Checkout Service
   checkout:
@@ -88,23 +93,21 @@ services:
     networks:
       - dealcart
 
-  # Edge Gateway
+  # Edge Gateway (with Horizontal Scaling support)
   edge-gateway:
     build:
       context: ../edge-gateway
       dockerfile: Dockerfile
-    container_name: edge-gateway
+    # Remove container_name to allow multiple replicas
     environment:
       - PORT=8080
       - PRICING_HOST=vendor-pricing
       - PRICING_PORT=9100
       - CHECKOUT_HOST=checkout
       - CHECKOUT_PORT=9200
-      - RATE_LIMIT_QPS=100
+      - RATE_LIMIT_QPS=500
       - GRPC_DEADLINE_SECONDS=2
       - LOG_LEVEL=INFO
-    ports:
-      - "8080:8080"
     restart: unless-stopped
     depends_on:
       vendor-pricing:
@@ -119,6 +122,11 @@ services:
       start_period: 20s
     networks:
       - dealcart
+    # Horizontal scaling: run 2 instances by default
+    deploy:
+      replicas: 2
+      restart_policy:
+        condition: on-failure
 
   # Next.js Web UI
   web-ui:

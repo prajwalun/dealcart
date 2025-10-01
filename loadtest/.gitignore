@@ -3,6 +3,8 @@
 *.log
 results-*/
 jmeter.log
+*-results.txt
+*-logs.txt
 
 # Backup files
 *.bak
