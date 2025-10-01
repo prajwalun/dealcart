@@ -19,6 +19,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicReference;
+import java.time.Instant;
+import java.time.Duration;
 
 /**
  * Vendor pricing aggregator that fans out to multiple vendor backends and streams quotes as they arrive.
@@ -37,6 +42,30 @@ public class VendorPricingServer {
     private final AdaptiveThreadPool adaptivePool;
     private final Object streamLock = new Object();
     private Server server;
+    private MetricsHttpServer metricsServer;
+    
+    // Traffic metrics for auto-scaling
+    private final AtomicLong totalRequests = new AtomicLong(0);
+    private final AtomicLong totalErrors = new AtomicLong(0);
+    private final ConcurrentLinkedQueue<RequestMetrics> recentRequests = new ConcurrentLinkedQueue<>();
+    private final AtomicReference<Instant> lastMetricsReset = new AtomicReference<>(Instant.now());
+    
+    // Metrics window (last 60 seconds)
+    private static final Duration METRICS_WINDOW = Duration.ofSeconds(60);
+    private static final int MAX_METRICS_SAMPLES = 1000;
+    
+    // Request metrics for traffic analysis
+    private static class RequestMetrics {
+        final Instant timestamp;
+        final long latencyMs;
+        final boolean success;
+        
+        RequestMetrics(long latencyMs, boolean success) {
+            this.timestamp = Instant.now();
+            this.latencyMs = latencyMs;
+            this.success = success;
+        }
+    }
 
     public VendorPricingServer(int port, List<VendorEndpoint> vendorEndpoints, AdaptiveThreadPool adaptivePool) {
         this.port = port;
@@ -53,9 +82,19 @@ public class VendorPricingServer {
         // Start adaptive thread pool controller
         adaptivePool.startController();
         
+        // Start metrics HTTP server
+        try {
+            metricsServer = new MetricsHttpServer(port + 1000, this); // Use port + 1000 for metrics
+            metricsServer.start();
+            logger.info("Metrics server started on port {}", port + 1000);
+        } catch (IOException e) {
+            logger.warn("Failed to start metrics server: {}", e.getMessage());
+        }
+        
         logger.info("VendorPricingServer started on port {} with {} vendor endpoints", 
                    port, vendorEndpoints.size());
         logger.info("Autoscaler enabled: pool size will adapt based on latency");
+        logger.info("Traffic metrics available at http://localhost:{}/metrics", port + 1000);
         
         // Add shutdown hook
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
@@ -75,6 +114,94 @@ public class VendorPricingServer {
         }
         if (adaptivePool != null) {
             adaptivePool.stop();
+        }
+        if (metricsServer != null) {
+            metricsServer.stop();
+        }
+    }
+    
+    // Record request metrics for traffic analysis
+    public void recordRequest(long latencyMs, boolean success) {
+        totalRequests.incrementAndGet();
+        if (!success) {
+            totalErrors.incrementAndGet();
+        }
+        
+        // Add to recent requests queue
+        recentRequests.offer(new RequestMetrics(latencyMs, success));
+        
+        // Clean up old metrics (keep only last 60 seconds)
+        cleanupOldMetrics();
+    }
+    
+    private void cleanupOldMetrics() {
+        Instant cutoff = Instant.now().minus(METRICS_WINDOW);
+        while (recentRequests.size() > MAX_METRICS_SAMPLES) {
+            recentRequests.poll(); // Remove oldest
+        }
+        
+        // Remove metrics older than 60 seconds
+        recentRequests.removeIf(metrics -> metrics.timestamp.isBefore(cutoff));
+    }
+    
+    // Get current traffic metrics for auto-scaling decisions
+    public TrafficMetrics getCurrentTrafficMetrics() {
+        Instant now = Instant.now();
+        Instant cutoff = now.minus(METRICS_WINDOW);
+        
+        // Filter recent requests (last 60 seconds)
+        List<RequestMetrics> recent = new ArrayList<>();
+        for (RequestMetrics metrics : recentRequests) {
+            if (metrics.timestamp.isAfter(cutoff)) {
+                recent.add(metrics);
+            }
+        }
+        
+        if (recent.isEmpty()) {
+            return new TrafficMetrics(0, 0, 0, 0, 0);
+        }
+        
+        // Calculate RPS (requests per second)
+        double rps = recent.size() / 60.0;
+        
+        // Calculate error rate
+        long errors = recent.stream().mapToLong(m -> m.success ? 0 : 1).sum();
+        double errorRate = (double) errors / recent.size() * 100.0;
+        
+        // Calculate latency percentiles
+        List<Long> latencies = recent.stream()
+            .mapToLong(m -> m.latencyMs)
+            .sorted()
+            .boxed()
+            .collect(java.util.stream.Collectors.toList());
+        
+        long p50 = latencies.get((int) (latencies.size() * 0.5));
+        long p95 = latencies.get((int) (latencies.size() * 0.95));
+        long p99 = latencies.get((int) (latencies.size() * 0.99));
+        
+        return new TrafficMetrics(rps, errorRate, p50, p95, p99);
+    }
+    
+    // Traffic metrics data class
+    public static class TrafficMetrics {
+        public final double rps;
+        public final double errorRate;
+        public final long p50Latency;
+        public final long p95Latency;
+        public final long p99Latency;
+        
+        public TrafficMetrics(double rps, double errorRate, long p50Latency, long p95Latency, long p99Latency) {
+            this.rps = rps;
+            this.errorRate = errorRate;
+            this.p50Latency = p50Latency;
+            this.p95Latency = p95Latency;
+            this.p99Latency = p99Latency;
+        }
+        
+        @Override
+        public String toString() {
+            return String.format("RPS=%.1f, ErrorRate=%.1f%%, P50=%dms, P95=%dms, P99=%dms", 
+                               rps, errorRate, p50Latency, p95Latency, p99Latency);
         }
     }
 
@@ -167,6 +294,9 @@ public class VendorPricingServer {
             long latencyMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNanos);
             adaptivePool.recordLatency(latencyMs);
             
+            // Record traffic metrics for auto-scaling
+            recordRequest(latencyMs, true);
+            
             // Stream the quote to the client (synchronized to prevent race conditions)
             synchronized (streamLock) {
                 responseObserver.onNext(quote);
@@ -181,6 +311,9 @@ public class VendorPricingServer {
             // Still record latency even on failure
             long latencyMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNanos);
             adaptivePool.recordLatency(latencyMs);
+            
+            // Record traffic metrics for auto-scaling (failure)
+            recordRequest(latencyMs, false);
             
             logger.error("Failed to get quote from vendor {} after {}ms: {}", 
                         endpoint.name, latencyMs, e.getMessage());
