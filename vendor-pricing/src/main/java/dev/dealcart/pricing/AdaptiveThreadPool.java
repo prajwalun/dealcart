@@ -24,6 +24,8 @@ public class AdaptiveThreadPool {
     private ScheduledExecutorService controller;
     private final ConcurrentLinkedQueue<Long> latencies;
     private final AtomicInteger currentPoolSize;
+    private volatile long lastScaleAtMs = 0; // Cooldown to prevent flapping
+    private static final long SCALE_COOLDOWN_MS = 20_000; // 20 seconds between scaling
     
     public AdaptiveThreadPool(int minThreads, int maxThreads, int stepSize, 
                              long targetP95Ms, long lowerP95Ms, int latencyWindowSize) {
@@ -36,13 +38,13 @@ public class AdaptiveThreadPool {
         this.latencies = new ConcurrentLinkedQueue<>();
         this.currentPoolSize = new AtomicInteger(minThreads);
         
-        // Create executor with min threads initially
+        // Create executor with min threads initially and bounded queue
         this.executor = new ThreadPoolExecutor(
             minThreads, 
             maxThreads,
             60L, 
             TimeUnit.SECONDS,
-            new LinkedBlockingQueue<>(),
+            new LinkedBlockingQueue<>(2048), // Bounded queue prevents unbounded backlog
             new ThreadFactory() {
                 private final AtomicInteger threadNumber = new AtomicInteger(1);
                 @Override
@@ -54,7 +56,10 @@ public class AdaptiveThreadPool {
             }
         );
         
-        logger.info("AdaptiveThreadPool initialized: min={}, max={}, step={}, targetP95={}ms, lowerP95={}ms",
+        // Allow core threads to time out when idle (nice idle shrink)
+        this.executor.allowCoreThreadTimeOut(true);
+        
+        logger.info("AdaptiveThreadPool initialized: min={}, max={}, step={}, targetP95={}ms, lowerP95={}ms, queue=2048",
                    minThreads, maxThreads, stepSize, targetP95Ms, lowerP95Ms);
     }
     
@@ -126,6 +131,7 @@ public class AdaptiveThreadPool {
     
     /**
      * Autoscaling logic: adjust pool size based on p95 latency.
+     * Includes cooldown period to prevent flapping.
      */
     private void adjustPoolSize() {
         if (latencies.isEmpty()) {
@@ -138,8 +144,18 @@ public class AdaptiveThreadPool {
         int activeThreads = executor.getActiveCount();
         int queueSize = executor.getQueue().size();
         
-        logger.debug("Autoscaler check: p95={}ms, poolSize={}, active={}, queue={}", 
-                    p95, currentSize, activeThreads, queueSize);
+        // Always log periodic snapshot (helps during JMeter)
+        logger.info("Autoscaler snapshot: p95={}ms, pool={}/{}, active={}, queue={}", 
+                   p95, currentSize, maxThreads, activeThreads, queueSize);
+        
+        // Check cooldown to prevent flapping
+        long now = System.currentTimeMillis();
+        long timeSinceLastScale = now - lastScaleAtMs;
+        
+        if (timeSinceLastScale < SCALE_COOLDOWN_MS && lastScaleAtMs > 0) {
+            logger.debug("Autoscaler cooldown: {}ms remaining", SCALE_COOLDOWN_MS - timeSinceLastScale);
+            return;
+        }
         
         // Scale up if p95 exceeds target
         if (p95 > targetP95Ms && currentSize < maxThreads) {
@@ -147,6 +163,7 @@ public class AdaptiveThreadPool {
             executor.setCorePoolSize(newSize);
             executor.setMaximumPoolSize(newSize);
             currentPoolSize.set(newSize);
+            lastScaleAtMs = now;
             logger.info("Autoscaler: SCALE UP {} → {} threads (p95={}ms > target={}ms)", 
                        currentSize, newSize, p95, targetP95Ms);
         }
@@ -158,6 +175,7 @@ public class AdaptiveThreadPool {
                 executor.setCorePoolSize(newSize);
                 executor.setMaximumPoolSize(newSize);
                 currentPoolSize.set(newSize);
+                lastScaleAtMs = now;
                 logger.info("Autoscaler: SCALE DOWN {} → {} threads (p95={}ms < lower={}ms)", 
                            currentSize, newSize, p95, lowerP95Ms);
             }

@@ -145,7 +145,8 @@ public class VendorPricingServer {
                                         CountDownLatch latch, AtomicInteger completedCount, 
                                         AtomicInteger errorCount) {
         ManagedChannel channel = null;
-        long startTime = System.currentTimeMillis();
+        // Use monotonic time to avoid clock jumps during tests
+        long startNanos = System.nanoTime();
         
         try {
             // Create gRPC channel to vendor using Netty transport explicitly
@@ -162,8 +163,8 @@ public class VendorPricingServer {
             
             PriceQuote quote = stub.getQuote(request);
             
-            // Record latency for autoscaling
-            long latencyMs = System.currentTimeMillis() - startTime;
+            // Record latency for autoscaling (convert nanos to millis)
+            long latencyMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNanos);
             adaptivePool.recordLatency(latencyMs);
             
             // Stream the quote to the client (synchronized to prevent race conditions)
@@ -178,7 +179,7 @@ public class VendorPricingServer {
             
         } catch (Exception e) {
             // Still record latency even on failure
-            long latencyMs = System.currentTimeMillis() - startTime;
+            long latencyMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNanos);
             adaptivePool.recordLatency(latencyMs);
             
             logger.error("Failed to get quote from vendor {} after {}ms: {}", 
