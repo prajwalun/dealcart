@@ -1,0 +1,25 @@
+# Simple reverse proxy to edge-gateway
+:80 {
+    # Health check endpoint for Docker
+    route /caddy-health {
+        respond 200
+    }
+    
+    # Proxy all other requests to edge-gateway
+    reverse_proxy edge-gateway:8080
+    
+    # Enable logging
+    log {
+        output stdout
+        format json
+    }
+    
+    # Add server header
+    header Server "DealCart+"
+    
+    # CORS headers (redundant with edge-gateway but good practice)
+    header Access-Control-Allow-Origin *
+    header Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+    header Access-Control-Allow-Headers *
+}
+

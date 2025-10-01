@@ -1,0 +1,147 @@
+version: '3.8'
+
+services:
+  # Vendor Mock 1 - Amazon
+  vendor-mock-1:
+    build:
+      context: ../vendor-mock
+      dockerfile: Dockerfile
+    container_name: vendor-mock-1
+    environment:
+      - VENDOR_NAME=amz
+      - PORT=9101
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "exec 6<>/dev/tcp/localhost/9101"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+    networks:
+      - dealcart
+
+  # Vendor Mock 2 - BestBuy
+  vendor-mock-2:
+    build:
+      context: ../vendor-mock
+      dockerfile: Dockerfile
+    container_name: vendor-mock-2
+    environment:
+      - VENDOR_NAME=bb
+      - PORT=9102
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "exec 6<>/dev/tcp/localhost/9102"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+    networks:
+      - dealcart
+
+  # Vendor Pricing Aggregator
+  vendor-pricing:
+    build:
+      context: ../vendor-pricing
+      dockerfile: Dockerfile
+    container_name: vendor-pricing
+    environment:
+      - PORT=9100
+      - VENDORS=vendor-mock-1:9101:amz,vendor-mock-2:9102:bb
+    restart: unless-stopped
+    depends_on:
+      vendor-mock-1:
+        condition: service_healthy
+      vendor-mock-2:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "exec 6<>/dev/tcp/localhost/9100"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+    networks:
+      - dealcart
+
+  # Checkout Service
+  checkout:
+    build:
+      context: ../checkout
+      dockerfile: Dockerfile
+    container_name: checkout
+    environment:
+      - PORT=9200
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "exec 6<>/dev/tcp/localhost/9200"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+    networks:
+      - dealcart
+
+  # Edge Gateway
+  edge-gateway:
+    build:
+      context: ../edge-gateway
+      dockerfile: Dockerfile
+    container_name: edge-gateway
+    environment:
+      - PORT=8080
+      - PRICING_HOST=vendor-pricing
+      - PRICING_PORT=9100
+      - CHECKOUT_HOST=checkout
+      - CHECKOUT_PORT=9200
+      - RATE_LIMIT_QPS=100
+      - GRPC_DEADLINE_SECONDS=2
+      - LOG_LEVEL=INFO
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+    depends_on:
+      vendor-pricing:
+        condition: service_healthy
+      checkout:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "exec 6<>/dev/tcp/localhost/8080"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 20s
+    networks:
+      - dealcart
+
+  # Caddy Reverse Proxy
+  caddy:
+    image: caddy:2-alpine
+    container_name: caddy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    restart: unless-stopped
+    depends_on:
+      edge-gateway:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "exec 6<>/dev/tcp/localhost/80"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+    networks:
+      - dealcart
+
+networks:
+  dealcart:
+    driver: bridge
+
+volumes:
+  caddy_data:
+  caddy_config:
+
