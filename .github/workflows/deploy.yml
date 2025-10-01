@@ -27,7 +27,13 @@ jobs:
           key: maven-${{ hashFiles('**/pom.xml') }}
       
       - name: Build Maven projects
-        run: ./mvnw -q -DskipTests package
+        run: |
+          echo "Building Maven projects..."
+          ./mvnw -DskipTests package
+          echo "Maven build completed. Checking target directory..."
+          ls -la target/
+          echo "Target directory contents:"
+          find target/ -name "*.jar" -type f
       
       - name: Login to GHCR
         uses: docker/login-action@v3
