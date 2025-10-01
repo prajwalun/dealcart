@@ -17,13 +17,20 @@ This directory contains the Docker Compose configuration to run the entire DealC
 
 ### 1. Start the Stack
 
-From the repo root:
+**Local development:**
 ```bash
-docker compose -f infra/docker-compose.yml up -d
+docker compose -f infra/docker-compose.yml up -d --build
+```
+
+**Remote deployment:**
+```bash
+docker compose -f infra/docker-compose.yml pull
+docker compose -f infra/docker-compose.yml up -d --remove-orphans
 ```
 
 This will:
-- Build Docker images for all services
+- **Local**: Build Docker images for all services
+- **Remote**: Pull pre-built images from GHCR
 - Start 6 containers: 2 vendor mocks, vendor-pricing, checkout, edge-gateway, and caddy
 - Set up networking between services
 - Configure health checks
@@ -182,10 +189,56 @@ Environment variables can be customized in `docker-compose.yml`:
        └─→ [checkout :9200]
 ```
 
+## Operations
+
+### Health Monitoring
+```bash
+# Check all services
+docker compose -f infra/docker-compose.yml ps
+
+# Check specific service health
+curl http://localhost/actuator/health
+
+# View logs
+docker compose -f infra/docker-compose.yml logs -f [service-name]
+```
+
+### Scaling Services
+```bash
+# Scale vendor-pricing (3 instances)
+docker compose -f infra/docker-compose.yml up -d --scale vendor-pricing=3
+
+# Scale edge-gateway (2 instances) 
+docker compose -f infra/docker-compose.yml up -d --scale edge-gateway=2
+
+# Scale down
+docker compose -f infra/docker-compose.yml up -d --scale vendor-pricing=1
+```
+
+### Updates and Maintenance
+```bash
+# Pull latest images and restart
+docker compose -f infra/docker-compose.yml pull
+docker compose -f infra/docker-compose.yml up -d --remove-orphans
+
+# Rebuild and restart (local development)
+docker compose -f infra/docker-compose.yml up -d --build
+```
+
+### Load Testing
+```bash
+# Run JMeter load tests
+./loadtest/run-comparison.sh
+
+# Test API endpoints
+curl "http://localhost/api/quote?productId=sku-123"
+curl -N "http://localhost/api/search?q=headphones" | head -n 5
+```
+
 ## Next Steps
 
 - Run JMeter load tests against `/api/quote?productId=sku-123`
 - Monitor with `docker stats`
 - Check Caddy logs for request patterns
-- Scale vendor mocks if needed
+- Scale services based on load
 

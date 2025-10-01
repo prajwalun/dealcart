@@ -1,0 +1,95 @@
+name: build-and-deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  packages: write   # needed for GHCR
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      
+      - name: Cache Maven
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: maven-${{ hashFiles('**/pom.xml') }}
+      
+      - name: Build Maven projects
+        run: ./mvnw -q -DskipTests package
+
+  images:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Build & push images
+        env:
+          OWNER: ${{ github.repository_owner }}
+          NAME: ${{ github.event.repository.name }}
+        run: |
+          set -e
+          # Ensure lowercase for GHCR compatibility
+          OWNER=$(echo "$OWNER" | tr '[:upper:]' '[:lower:]')
+          NAME=$(echo "$NAME" | tr '[:upper:]' '[:lower:]')
+          REPO="ghcr.io/$OWNER/$NAME"
+          SHA=${{ github.sha }}
+          
+          declare -a SVC=("vendor-mock" "vendor-pricing" "checkout" "edge-gateway" "web-ui")
+          for s in "${SVC[@]}"; do
+            echo "Building and pushing $s..."
+            docker build -t $REPO-$s:$SHA -t $REPO-$s:latest $s
+            docker push $REPO-$s:$SHA
+            docker push $REPO-$s:latest
+          done
+
+  deploy:
+    needs: images
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'
+    steps:
+      - name: SSH deploy
+        # appleboy/ssh-action is convenient; any SSH action works
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_KEY }}
+          script: |
+            set -e
+            cd /opt/dealcart
+
+            # Ensure .env present (idempotent)
+            if [ ! -f .env ]; then
+              echo "IMAGE_PREFIX=ghcr.io/${GITHUB_REPOSITORY,,}" > .env
+            fi
+            echo "Using IMAGE_PREFIX=$(grep IMAGE_PREFIX .env | cut -d= -f2)"
+
+            # Login to GHCR (read-only pull)
+            docker login ghcr.io -u $GITHUB_ACTOR -p ${{ secrets.GITHUB_TOKEN }}
+
+            # Pull latest images and restart
+            docker compose -f infra/docker-compose.yml pull
+            docker compose -f infra/docker-compose.yml up -d --remove-orphans
+
+            # Show running services
+            docker compose -f infra/docker-compose.yml ps

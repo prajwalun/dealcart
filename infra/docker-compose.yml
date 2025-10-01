@@ -3,6 +3,7 @@ version: '3.8'
 services:
   # Vendor Mock 1 - Amazon
   vendor-mock-1:
+    image: ${IMAGE_PREFIX}-vendor-mock:latest
     build:
       context: ../vendor-mock
       dockerfile: Dockerfile
@@ -22,6 +23,7 @@ services:
 
   # Vendor Mock 2 - BestBuy
   vendor-mock-2:
+    image: ${IMAGE_PREFIX}-vendor-mock:latest
     build:
       context: ../vendor-mock
       dockerfile: Dockerfile
@@ -41,6 +43,7 @@ services:
 
   # Vendor Pricing Aggregator (with Vertical Autoscaling + Horizontal Scaling)
   vendor-pricing:
+    image: ${IMAGE_PREFIX}-vendor-pricing:latest
     build:
       context: ../vendor-pricing
       dockerfile: Dockerfile
@@ -77,6 +80,7 @@ services:
 
   # Checkout Service
   checkout:
+    image: ${IMAGE_PREFIX}-checkout:latest
     build:
       context: ../checkout
       dockerfile: Dockerfile
@@ -95,6 +99,7 @@ services:
 
   # Edge Gateway (with Horizontal Scaling support)
   edge-gateway:
+    image: ${IMAGE_PREFIX}-edge-gateway:latest
     build:
       context: ../edge-gateway
       dockerfile: Dockerfile
@@ -130,6 +135,7 @@ services:
 
   # Next.js Web UI
   web-ui:
+    image: ${IMAGE_PREFIX}-web-ui:latest
     build:
       context: ../web-ui
       dockerfile: Dockerfile

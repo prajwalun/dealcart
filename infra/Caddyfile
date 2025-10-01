@@ -5,29 +5,32 @@
         respond 200
     }
     
-    # API routes go to edge-gateway with load balancing across replicas
+    # API routes go to edge-gateway with explicit load balancing across replicas
     route /api/* {
-        reverse_proxy edge-gateway:8080 {
-            # Docker Compose automatically load-balances across replicas
-            # using DNS round-robin when you use the service name
-            lb_policy round_robin
-            lb_try_duration 5s
-            
-            # Health check to remove unhealthy instances
+        reverse_proxy {
+            to edge-gateway-1:8080
+            to edge-gateway-2:8080
+            flush_interval -1
             health_uri /actuator/health
             health_interval 10s
             health_timeout 5s
-            health_status 200
-            
-            # Fail over quickly if instance is down
-            fail_duration 10s
+            fail_duration 30s
+            lb_try_duration 10s
+            lb_try_interval 250ms
         }
     }
     
     # Actuator health check
     route /actuator/* {
-        reverse_proxy edge-gateway:8080 {
-            lb_policy round_robin
+        reverse_proxy {
+            to edge-gateway-1:8080
+            to edge-gateway-2:8080
+            flush_interval -1
+            health_uri /actuator/health
+            health_interval 10s
+            fail_duration 30s
+            lb_try_duration 10s
+            lb_try_interval 250ms
         }
     }
     

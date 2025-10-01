@@ -51,15 +51,21 @@ public class MetricsHttpServer {
         public void handle(HttpExchange exchange) throws IOException {
             try {
                 // Get current traffic metrics
-                VendorPricingServer.TrafficMetrics metrics = pricingServer.getCurrentTrafficMetrics();
+                VendorPricingServer.TrafficMetrics trafficMetrics = pricingServer.getCurrentTrafficMetrics();
                 
-                // Create response object
+                // Get system metrics (CPU, Memory)
+                SystemMetrics systemMetrics = new SystemMetrics();
+                
+                // Create response object with production metrics
                 MetricsResponse response = new MetricsResponse(
-                    metrics.rps,
-                    metrics.errorRate,
-                    metrics.p50Latency,
-                    metrics.p95Latency,
-                    metrics.p99Latency,
+                    trafficMetrics.rps,
+                    trafficMetrics.errorRate,
+                    trafficMetrics.p50Latency,
+                    trafficMetrics.p95Latency,
+                    trafficMetrics.p99Latency,
+                    systemMetrics.getCpuUsage(),
+                    systemMetrics.getMemoryUsage(),
+                    systemMetrics.getLoadAverage(),
                     System.currentTimeMillis()
                 );
                 
@@ -107,14 +113,21 @@ public class MetricsHttpServer {
         public final long p50Latency;
         public final long p95Latency;
         public final long p99Latency;
+        public final double cpuUsage;
+        public final double memoryUsage;
+        public final double loadAverage;
         public final long timestamp;
         
-        public MetricsResponse(double rps, double errorRate, long p50Latency, long p95Latency, long p99Latency, long timestamp) {
+        public MetricsResponse(double rps, double errorRate, long p50Latency, long p95Latency, long p99Latency, 
+                             double cpuUsage, double memoryUsage, double loadAverage, long timestamp) {
             this.rps = rps;
             this.errorRate = errorRate;
             this.p50Latency = p50Latency;
             this.p95Latency = p95Latency;
             this.p99Latency = p99Latency;
+            this.cpuUsage = cpuUsage;
+            this.memoryUsage = memoryUsage;
+            this.loadAverage = loadAverage;
             this.timestamp = timestamp;
         }
     }
