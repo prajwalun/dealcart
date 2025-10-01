@@ -16,6 +16,7 @@ export default function SearchPage() {
   const [isStreaming, setIsStreaming] = useState(false)
   const eventSourceRef = useRef<EventSource | null>(null)
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const hasReceivedQuotesRef = useRef(false)
   const { toast } = useToast()
 
   // Cleanup on unmount
@@ -63,6 +64,7 @@ export default function SearchPage() {
     setQuotes([])
     setIsStreaming(true)
     setIsLoading(false)
+    hasReceivedQuotesRef.current = false
 
     const url = `${API_BASE}/api/search?q=${encodeURIComponent(searchQuery)}`
     const eventSource = new EventSource(url)
@@ -71,6 +73,7 @@ export default function SearchPage() {
     eventSource.addEventListener("quote", (e) => {
       try {
         const quote: Quote = JSON.parse(e.data)
+        hasReceivedQuotesRef.current = true
         setQuotes((prev) => {
           // Deduplicate by vendorId
           const exists = prev.some((q) => q.vendorId === quote.vendorId)
@@ -87,17 +90,15 @@ export default function SearchPage() {
       eventSource.close()
       setIsStreaming(false)
       
-      // Only show error if we got zero quotes (real failure)
-      // Stream naturally closes after sending quotes, triggering onerror
-      setTimeout(() => {
-        if (quotes.length === 0) {
-          toast({
-            title: "Connection Error",
-            description: "Failed to fetch quotes. Please try again.",
-            variant: "destructive",
-          })
-        }
-      }, 100)
+      // Only show error if we never received any quotes
+      // SSE naturally triggers onerror when stream completes
+      if (!hasReceivedQuotesRef.current) {
+        toast({
+          title: "Connection Error",
+          description: "Failed to fetch quotes. Please try again.",
+          variant: "destructive",
+        })
+      }
     }
 
     eventSource.addEventListener("close", () => {
@@ -111,7 +112,7 @@ export default function SearchPage() {
       {/* Hero Section */}
       <div className="relative bg-gradient-to-br from-primary via-primary to-blue-600 text-primary-foreground overflow-hidden">
         <div className="absolute inset-0 bg-grid-white/[0.05] bg-[size:20px_20px]" />
-        <div className="container relative py-20 text-center space-y-6">
+        <div className="container mx-auto relative py-20 text-center space-y-6 max-w-6xl px-4">
           <h1 className="text-5xl sm:text-6xl font-bold tracking-tight text-balance animate-in fade-in slide-in-from-bottom-4 duration-700">
             Find the Best Deals
             <span className="block mt-2">Across All Vendors</span>
