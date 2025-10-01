@@ -1,0 +1,43 @@
+server:
+  port: ${PORT:8080}
+
+spring:
+  application:
+    name: edge-gateway
+
+# gRPC backend service configuration
+grpc:
+  pricing:
+    host: ${PRICING_HOST:localhost}
+    port: ${PRICING_PORT:9100}
+  checkout:
+    host: ${CHECKOUT_HOST:localhost}
+    port: ${CHECKOUT_PORT:9200}
+
+# Rate limiting configuration
+rate-limit:
+  enabled: ${RATE_LIMIT_ENABLED:true}
+  qps: ${RATE_LIMIT_QPS:100}
+
+# gRPC client configuration
+grpc-client:
+  deadline-seconds: ${GRPC_DEADLINE_SECONDS:2}
+
+# Logging configuration
+logging:
+  level:
+    dev.dealcart: ${LOG_LEVEL:INFO}
+    root: WARN
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] [%X{request-id}] %-5level %logger{36} - %msg%n"
+
+# Actuator endpoints
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+

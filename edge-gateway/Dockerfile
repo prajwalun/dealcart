@@ -4,17 +4,23 @@ FROM eclipse-temurin:21-jre-alpine
 # Set working directory
 WORKDIR /app
 
-# Copy the fat JAR
-COPY target/vendor-pricing-*.jar app.jar
+# Copy the Spring Boot JAR
+COPY target/edge-gateway-*.jar app.jar
 
 # Expose the default port
-EXPOSE 9100
+EXPOSE 8080
 
 # Set environment variables with defaults
-ENV PORT=9100
-ENV VENDORS="localhost:9101:FastVendor,localhost:9102:SlowVendor"
+ENV PORT=8080
+ENV PRICING_HOST=localhost
+ENV PRICING_PORT=9100
+ENV CHECKOUT_HOST=localhost
+ENV CHECKOUT_PORT=9200
+ENV RATE_LIMIT_QPS=100
+ENV GRPC_DEADLINE_SECONDS=2
 
 # Health check will be handled by Docker Compose in Step 7
 
 # Run the application
 ENTRYPOINT ["java", "-jar", "app.jar"]
+

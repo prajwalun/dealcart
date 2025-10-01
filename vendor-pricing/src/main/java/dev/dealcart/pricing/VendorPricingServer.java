@@ -14,6 +14,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -31,11 +33,14 @@ public class VendorPricingServer {
     
     private final int port;
     private final List<VendorEndpoint> vendorEndpoints;
+    private final ExecutorService executorService;
+    private final Object streamLock = new Object();
     private Server server;
 
     public VendorPricingServer(int port, List<VendorEndpoint> vendorEndpoints) {
         this.port = port;
         this.vendorEndpoints = vendorEndpoints;
+        this.executorService = Executors.newFixedThreadPool(16);
     }
 
     public void start() throws IOException {
@@ -62,6 +67,10 @@ public class VendorPricingServer {
     public void stop() throws InterruptedException {
         if (server != null) {
             server.shutdown().awaitTermination(5, TimeUnit.SECONDS);
+        }
+        if (executorService != null) {
+            executorService.shutdown();
+            executorService.awaitTermination(2, TimeUnit.SECONDS);
         }
     }
 
@@ -92,7 +101,7 @@ public class VendorPricingServer {
             AtomicInteger completedCount = new AtomicInteger(0);
             AtomicInteger errorCount = new AtomicInteger(0);
             
-            // Fan out to all vendor endpoints using CompletableFuture
+            // Fan out to all vendor endpoints using CompletableFuture with fixed thread pool
             for (VendorEndpoint endpoint : vendorEndpoints) {
                 CompletableFuture.runAsync(() -> {
                     try {
@@ -102,7 +111,7 @@ public class VendorPricingServer {
                         errorCount.incrementAndGet();
                         latch.countDown();
                     }
-                });
+                }, executorService);
             }
             
             // Wait for all vendor calls to complete (or timeout)
@@ -138,15 +147,18 @@ public class VendorPricingServer {
                     .usePlaintext()
                     .build();
             
-            // Create stub and call GetQuote
-            VendorBackendGrpc.VendorBackendBlockingStub stub = VendorBackendGrpc.newBlockingStub(channel);
+            // Create stub with deadline and call GetQuote
+            VendorBackendGrpc.VendorBackendBlockingStub stub = VendorBackendGrpc.newBlockingStub(channel)
+                    .withDeadlineAfter(1500, TimeUnit.MILLISECONDS);
             
             logger.debug("Calling vendor {} at {}:{}", endpoint.name, endpoint.host, endpoint.port);
             
             PriceQuote quote = stub.getQuote(request);
             
-            // Stream the quote to the client
-            responseObserver.onNext(quote);
+            // Stream the quote to the client (synchronized to prevent race conditions)
+            synchronized (streamLock) {
+                responseObserver.onNext(quote);
+            }
             completedCount.incrementAndGet();
             
             logger.debug("Received quote from {}: {} {}", 
