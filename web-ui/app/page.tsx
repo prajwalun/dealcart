@@ -86,14 +86,18 @@ export default function SearchPage() {
       console.error("[v0] EventSource error:", error)
       eventSource.close()
       setIsStreaming(false)
-
-      if (quotes.length === 0) {
-        toast({
-          title: "Connection Error",
-          description: "Failed to fetch quotes. Please try again.",
-          variant: "destructive",
-        })
-      }
+      
+      // Only show error if we got zero quotes (real failure)
+      // Stream naturally closes after sending quotes, triggering onerror
+      setTimeout(() => {
+        if (quotes.length === 0) {
+          toast({
+            title: "Connection Error",
+            description: "Failed to fetch quotes. Please try again.",
+            variant: "destructive",
+          })
+        }
+      }, 100)
     }
 
     eventSource.addEventListener("close", () => {
@@ -118,7 +122,7 @@ export default function SearchPage() {
         </div>
       </div>
 
-      <div className="container py-8 space-y-8">
+      <div className="container mx-auto py-8 space-y-8 max-w-7xl">
         {/* Search Section */}
         <Card className="max-w-3xl mx-auto shadow-lg hover:shadow-xl transition-all duration-200 -mt-12 relative z-10 border-2">
           <CardHeader>

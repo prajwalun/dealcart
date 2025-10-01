@@ -105,7 +105,7 @@ export default function CartPage() {
 
   if (items.length === 0) {
     return (
-      <div className="container py-16">
+      <div className="container mx-auto py-16 px-4">
         <Card className="max-w-md mx-auto text-center shadow-lg">
           <CardHeader className="pt-12">
             <div className="h-24 w-24 rounded-full bg-muted/50 flex items-center justify-center mx-auto mb-6">
@@ -125,7 +125,7 @@ export default function CartPage() {
   }
 
   return (
-    <div className="container py-8">
+    <div className="container mx-auto py-8 max-w-7xl px-4">
       <div className="grid lg:grid-cols-3 gap-8">
         {/* Cart Items */}
         <div className="lg:col-span-2 space-y-4">

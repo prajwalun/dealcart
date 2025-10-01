@@ -122,7 +122,7 @@ export default function CheckoutStatusPage() {
   }
 
   return (
-    <div className="container py-8 max-w-4xl">
+    <div className="container mx-auto py-8 max-w-4xl px-4">
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
