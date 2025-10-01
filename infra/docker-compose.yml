@@ -113,6 +113,24 @@ services:
     networks:
       - dealcart
 
+  # Next.js Web UI
+  web-ui:
+    build:
+      context: ../web-ui
+      dockerfile: Dockerfile
+    container_name: web-ui
+    environment:
+      - NEXT_PUBLIC_API_BASE_URL=
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "exec 6<>/dev/tcp/localhost/3000"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 15s
+    networks:
+      - dealcart
+
   # Caddy Reverse Proxy
   caddy:
     image: caddy:2-alpine
@@ -127,6 +145,8 @@ services:
     restart: unless-stopped
     depends_on:
       edge-gateway:
+        condition: service_healthy
+      web-ui:
         condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "exec 6<>/dev/tcp/localhost/80"]
