@@ -34,14 +34,14 @@ public class VendorPricingServer {
     
     private final int port;
     private final List<VendorEndpoint> vendorEndpoints;
-    private final ExecutorService executorService;
+    private final AdaptiveThreadPool adaptivePool;
     private final Object streamLock = new Object();
     private Server server;
 
-    public VendorPricingServer(int port, List<VendorEndpoint> vendorEndpoints) {
+    public VendorPricingServer(int port, List<VendorEndpoint> vendorEndpoints, AdaptiveThreadPool adaptivePool) {
         this.port = port;
         this.vendorEndpoints = vendorEndpoints;
-        this.executorService = Executors.newFixedThreadPool(16);
+        this.adaptivePool = adaptivePool;
     }
 
     public void start() throws IOException {
@@ -50,8 +50,12 @@ public class VendorPricingServer {
                 .build()
                 .start();
         
+        // Start adaptive thread pool controller
+        adaptivePool.startController();
+        
         logger.info("VendorPricingServer started on port {} with {} vendor endpoints", 
                    port, vendorEndpoints.size());
+        logger.info("Autoscaler enabled: pool size will adapt based on latency");
         
         // Add shutdown hook
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
@@ -69,9 +73,8 @@ public class VendorPricingServer {
         if (server != null) {
             server.shutdown().awaitTermination(5, TimeUnit.SECONDS);
         }
-        if (executorService != null) {
-            executorService.shutdown();
-            executorService.awaitTermination(2, TimeUnit.SECONDS);
+        if (adaptivePool != null) {
+            adaptivePool.stop();
         }
     }
 
@@ -102,7 +105,7 @@ public class VendorPricingServer {
             AtomicInteger completedCount = new AtomicInteger(0);
             AtomicInteger errorCount = new AtomicInteger(0);
             
-            // Fan out to all vendor endpoints using CompletableFuture with fixed thread pool
+            // Fan out to all vendor endpoints using CompletableFuture with adaptive thread pool
             for (VendorEndpoint endpoint : vendorEndpoints) {
                 CompletableFuture.runAsync(() -> {
                     try {
@@ -112,7 +115,7 @@ public class VendorPricingServer {
                         errorCount.incrementAndGet();
                         latch.countDown();
                     }
-                }, executorService);
+                }, adaptivePool.executor());
             }
             
             // Wait for all vendor calls to complete (or timeout)
@@ -142,6 +145,8 @@ public class VendorPricingServer {
                                         CountDownLatch latch, AtomicInteger completedCount, 
                                         AtomicInteger errorCount) {
         ManagedChannel channel = null;
+        long startTime = System.currentTimeMillis();
+        
         try {
             // Create gRPC channel to vendor using Netty transport explicitly
             channel = NettyChannelBuilder.forAddress(endpoint.host, endpoint.port)
@@ -157,18 +162,27 @@ public class VendorPricingServer {
             
             PriceQuote quote = stub.getQuote(request);
             
+            // Record latency for autoscaling
+            long latencyMs = System.currentTimeMillis() - startTime;
+            adaptivePool.recordLatency(latencyMs);
+            
             // Stream the quote to the client (synchronized to prevent race conditions)
             synchronized (streamLock) {
                 responseObserver.onNext(quote);
             }
             completedCount.incrementAndGet();
             
-            logger.debug("Received quote from {}: {} {}", 
-                        endpoint.name, quote.getPrice().getAmountCents() / 100.0, 
+            logger.debug("Received quote from {} in {}ms: {} {}", 
+                        endpoint.name, latencyMs, quote.getPrice().getAmountCents() / 100.0, 
                         quote.getPrice().getCurrencyCode());
             
         } catch (Exception e) {
-            logger.error("Failed to get quote from vendor {}: {}", endpoint.name, e.getMessage());
+            // Still record latency even on failure
+            long latencyMs = System.currentTimeMillis() - startTime;
+            adaptivePool.recordLatency(latencyMs);
+            
+            logger.error("Failed to get quote from vendor {} after {}ms: {}", 
+                        endpoint.name, latencyMs, e.getMessage());
             errorCount.incrementAndGet();
         } finally {
             // Clean up channel
@@ -263,10 +277,49 @@ public class VendorPricingServer {
             System.exit(1);
         }
         
-        logger.info("Starting VendorPricingServer with port={}, vendors={}", port, vendorEndpoints);
+        // Read autoscaling configuration
+        int adaptiveMin = parseEnvInt("ADAPTIVE_MIN", 8);
+        int adaptiveMax = parseEnvInt("ADAPTIVE_MAX", 64);
+        int adaptiveStep = parseEnvInt("ADAPTIVE_STEP", 8);
+        long targetP95Ms = parseEnvLong("TARGET_P95_MS", 250);
+        long lowerP95Ms = parseEnvLong("LOWER_P95_MS", 200);
+        int latWindow = parseEnvInt("LAT_WINDOW", 2000);
         
-        VendorPricingServer server = new VendorPricingServer(port, vendorEndpoints);
+        logger.info("Starting VendorPricingServer with port={}, vendors={}", port, vendorEndpoints);
+        logger.info("Autoscaling config: min={}, max={}, step={}, targetP95={}ms, lowerP95={}ms, window={}",
+                   adaptiveMin, adaptiveMax, adaptiveStep, targetP95Ms, lowerP95Ms, latWindow);
+        
+        // Create adaptive thread pool
+        AdaptiveThreadPool adaptivePool = new AdaptiveThreadPool(
+            adaptiveMin, adaptiveMax, adaptiveStep, targetP95Ms, lowerP95Ms, latWindow
+        );
+        
+        VendorPricingServer server = new VendorPricingServer(port, vendorEndpoints, adaptivePool);
         server.start();
         server.blockUntilShutdown();
+    }
+    
+    private static int parseEnvInt(String name, int defaultValue) {
+        String value = System.getenv(name);
+        if (value != null && !value.trim().isEmpty()) {
+            try {
+                return Integer.parseInt(value);
+            } catch (NumberFormatException e) {
+                logger.warn("Invalid {} environment variable: {}, using default {}", name, value, defaultValue);
+            }
+        }
+        return defaultValue;
+    }
+    
+    private static long parseEnvLong(String name, long defaultValue) {
+        String value = System.getenv(name);
+        if (value != null && !value.trim().isEmpty()) {
+            try {
+                return Long.parseLong(value);
+            } catch (NumberFormatException e) {
+                logger.warn("Invalid {} environment variable: {}, using default {}", name, value, defaultValue);
+            }
+        }
+        return defaultValue;
     }
 }

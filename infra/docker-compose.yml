@@ -39,7 +39,7 @@ services:
     networks:
       - dealcart
 
-  # Vendor Pricing Aggregator
+  # Vendor Pricing Aggregator (with Autoscaling)
   vendor-pricing:
     build:
       context: ../vendor-pricing
@@ -48,6 +48,13 @@ services:
     environment:
       - PORT=9100
       - VENDORS=vendor-mock-1:9101:amz,vendor-mock-2:9102:bb
+      # Autoscaling configuration
+      - ADAPTIVE_MIN=8
+      - ADAPTIVE_MAX=64
+      - ADAPTIVE_STEP=8
+      - TARGET_P95_MS=250
+      - LOWER_P95_MS=200
+      - LAT_WINDOW=2000
     restart: unless-stopped
     depends_on:
       vendor-mock-1:
