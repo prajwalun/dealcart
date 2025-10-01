@@ -475,19 +475,64 @@ class InventoryManager {
     private final ConcurrentHashMap<String, Integer> inventory = new ConcurrentHashMap<>();
     
     public InventoryManager() {
-        // Initialize with some inventory
-        inventory.put("sku-123", 100);
-        inventory.put("sku-456", 50);
-        inventory.put("sku-789", 75);
+        // Initialize with realistic product inventory for load testing
+        // High-demand electronics
+        inventory.put("sku-laptop", 5000);
+        inventory.put("sku-macbook", 3000);
+        inventory.put("sku-iphone", 10000);
+        inventory.put("sku-ipad", 7000);
+        inventory.put("sku-airpods", 15000);
+        inventory.put("sku-watch", 8000);
+        inventory.put("sku-monitor", 4000);
+        inventory.put("sku-keyboard", 12000);
+        inventory.put("sku-mouse", 18000);
+        inventory.put("sku-headphones", 6000);
+        inventory.put("sku-camera", 2000);
+        inventory.put("sku-drone", 1500);
+        inventory.put("sku-tablet", 5000);
+        
+        // Home & Kitchen
+        inventory.put("sku-blender", 8000);
+        inventory.put("sku-toaster", 10000);
+        inventory.put("sku-microwave", 5000);
+        inventory.put("sku-vacuum", 4000);
+        inventory.put("sku-coffee", 7000);
+        inventory.put("sku-airfryer", 6000);
+        
+        // Sports & Outdoors
+        inventory.put("sku-bike", 3000);
+        inventory.put("sku-yoga-mat", 15000);
+        inventory.put("sku-dumbbell", 10000);
+        inventory.put("sku-tent", 4000);
+        inventory.put("sku-backpack", 8000);
+        
+        // Books & Media
+        inventory.put("sku-book", 20000);
+        inventory.put("sku-textbook", 5000);
+        
+        // Clothing
+        inventory.put("sku-jacket", 7000);
+        inventory.put("sku-shoes", 12000);
+        inventory.put("sku-jeans", 15000);
+        inventory.put("sku-shirt", 20000);
+        
+        // Legacy test SKUs (for backward compatibility)
+        inventory.put("sku-123", 50000);
+        inventory.put("sku-456", 50000);
+        inventory.put("sku-789", 50000);
     }
     
     public synchronized boolean reserve(String productId, int quantity) {
-        int available = inventory.getOrDefault(productId, 1000); // Default large inventory for MVP
+        // For load testing: default to 100,000 units if product not in catalog
+        // This ensures we don't fail checkouts due to inventory during stress tests
+        int available = inventory.getOrDefault(productId, 100000);
+        
         if (available >= quantity) {
             inventory.put(productId, available - quantity);
             logger.debug("Reserved {} units of {}, {} remaining", quantity, productId, available - quantity);
             return true;
         }
+        
         logger.warn("Insufficient inventory for {}: requested {}, available {}", productId, quantity, available);
         return false;
     }

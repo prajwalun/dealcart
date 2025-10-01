@@ -8,6 +8,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
@@ -21,6 +23,82 @@ import java.util.concurrent.TimeUnit;
 public class VendorMockServer {
     private static final Logger logger = LoggerFactory.getLogger(VendorMockServer.class);
     private static final Random random = new Random();
+    
+    // Realistic product catalog for load testing with 100K requests
+    // Format: keyword -> base price in cents (will add variance per vendor)
+    private static final Map<String, Integer> PRODUCT_CATALOG = new HashMap<>();
+    static {
+        // Electronics (high value, $200-2000)
+        PRODUCT_CATALOG.put("laptop", 89900);      // $899 base
+        PRODUCT_CATALOG.put("macbook", 129900);    // $1299
+        PRODUCT_CATALOG.put("iphone", 79900);      // $799
+        PRODUCT_CATALOG.put("ipad", 59900);        // $599
+        PRODUCT_CATALOG.put("airpods", 19900);     // $199
+        PRODUCT_CATALOG.put("watch", 39900);       // $399
+        PRODUCT_CATALOG.put("monitor", 34900);     // $349
+        PRODUCT_CATALOG.put("keyboard", 12900);    // $129
+        PRODUCT_CATALOG.put("mouse", 7900);        // $79
+        PRODUCT_CATALOG.put("webcam", 8900);       // $89
+        PRODUCT_CATALOG.put("speaker", 14900);     // $149
+        PRODUCT_CATALOG.put("headphones", 24900);  // $249
+        PRODUCT_CATALOG.put("camera", 89900);      // $899
+        PRODUCT_CATALOG.put("drone", 119900);      // $1199
+        PRODUCT_CATALOG.put("tablet", 49900);      // $499
+        
+        // Home & Kitchen ($50-500)
+        PRODUCT_CATALOG.put("blender", 7900);      // $79
+        PRODUCT_CATALOG.put("toaster", 4900);      // $49
+        PRODUCT_CATALOG.put("microwave", 12900);   // $129
+        PRODUCT_CATALOG.put("vacuum", 24900);      // $249
+        PRODUCT_CATALOG.put("coffee", 9900);       // $99 (coffee maker)
+        PRODUCT_CATALOG.put("airfryer", 14900);    // $149
+        PRODUCT_CATALOG.put("mixer", 6900);        // $69
+        PRODUCT_CATALOG.put("kettle", 5900);       // $59
+        PRODUCT_CATALOG.put("toaster-oven", 8900); // $89
+        
+        // Sports & Outdoors ($30-300)
+        PRODUCT_CATALOG.put("bike", 39900);        // $399
+        PRODUCT_CATALOG.put("yoga-mat", 2900);     // $29
+        PRODUCT_CATALOG.put("dumbbell", 4900);     // $49
+        PRODUCT_CATALOG.put("treadmill", 59900);   // $599
+        PRODUCT_CATALOG.put("tent", 12900);        // $129
+        PRODUCT_CATALOG.put("backpack", 7900);     // $79
+        PRODUCT_CATALOG.put("sleeping-bag", 8900); // $89
+        PRODUCT_CATALOG.put("hiking-boots", 14900);// $149
+        
+        // Books & Media ($10-50)
+        PRODUCT_CATALOG.put("book", 1999);         // $19.99
+        PRODUCT_CATALOG.put("textbook", 4999);     // $49.99
+        PRODUCT_CATALOG.put("ebook", 999);         // $9.99
+        
+        // Clothing ($20-200)
+        PRODUCT_CATALOG.put("jacket", 12900);      // $129
+        PRODUCT_CATALOG.put("shoes", 8900);        // $89
+        PRODUCT_CATALOG.put("jeans", 5900);        // $59
+        PRODUCT_CATALOG.put("shirt", 2900);        // $29
+        PRODUCT_CATALOG.put("hoodie", 4900);       // $49
+        
+        // Toys & Games ($15-100)
+        PRODUCT_CATALOG.put("lego", 5900);         // $59
+        PRODUCT_CATALOG.put("puzzle", 1999);       // $19.99
+        PRODUCT_CATALOG.put("boardgame", 3999);    // $39.99
+        PRODUCT_CATALOG.put("controller", 5900);   // $59
+        
+        // Office Supplies ($10-100)
+        PRODUCT_CATALOG.put("desk", 19900);        // $199
+        PRODUCT_CATALOG.put("chair", 24900);       // $249
+        PRODUCT_CATALOG.put("lamp", 4900);         // $49
+        PRODUCT_CATALOG.put("organizer", 2900);    // $29
+        
+        // Beauty & Personal Care ($15-150)
+        PRODUCT_CATALOG.put("perfume", 7900);      // $79
+        PRODUCT_CATALOG.put("shampoo", 1499);      // $14.99
+        PRODUCT_CATALOG.put("razor", 2999);        // $29.99
+        PRODUCT_CATALOG.put("trimmer", 4900);      // $49
+        
+        // Default fallback (medium value)
+        PRODUCT_CATALOG.put("default", 4999);      // $49.99
+    }
     
     private final String vendorName;
     private final int port;
@@ -152,13 +230,28 @@ public class VendorMockServer {
     /**
      * Generate a deterministic base price based on product ID.
      * This ensures the same product always has similar pricing across vendors.
+     * Uses realistic product catalog for known items, hash-based for unknown.
      */
     private int generateBasePrice(String productId) {
-        // Use product ID hash to generate consistent base price
+        // Normalize product ID to lowercase for catalog lookup
+        String normalized = productId.toLowerCase();
+        
+        // Check if this is a known product keyword
+        for (Map.Entry<String, Integer> entry : PRODUCT_CATALOG.entrySet()) {
+            if (normalized.contains(entry.getKey())) {
+                // Found a match - use catalog price
+                // Add vendor-specific variation (±15%) for competitive pricing
+                int catalogPrice = entry.getValue();
+                double vendorVariation = 0.85 + (random.nextDouble() * 0.30); // 0.85 to 1.15
+                return (int) Math.round(catalogPrice * vendorVariation);
+            }
+        }
+        
+        // Unknown product - use hash-based pricing
         int hash = Math.abs(productId.hashCode());
         
-        // Map to reasonable price range ($10-$500)
-        int basePrice = 1000 + (hash % 49000); // $10.00 to $500.00 in cents
+        // Map to reasonable price range ($10-$300)
+        int basePrice = 1000 + (hash % 29000); // $10.00 to $300.00 in cents
         
         return basePrice;
     }
