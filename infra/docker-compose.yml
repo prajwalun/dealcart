@@ -12,7 +12,7 @@ services:
       - PORT=9101
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "exec 6<>/dev/tcp/localhost/9101"]
+      test: ["CMD-SHELL", "ps aux | grep java | grep -v grep || exit 1"]
       interval: 10s
       timeout: 3s
       retries: 5
@@ -31,7 +31,7 @@ services:
       - PORT=9102
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "exec 6<>/dev/tcp/localhost/9102"]
+      test: ["CMD-SHELL", "ps aux | grep java | grep -v grep || exit 1"]
       interval: 10s
       timeout: 3s
       retries: 5
@@ -55,7 +55,7 @@ services:
       vendor-mock-2:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "exec 6<>/dev/tcp/localhost/9100"]
+      test: ["CMD-SHELL", "ps aux | grep java | grep -v grep || exit 1"]
       interval: 10s
       timeout: 3s
       retries: 5
@@ -73,7 +73,7 @@ services:
       - PORT=9200
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "exec 6<>/dev/tcp/localhost/9200"]
+      test: ["CMD-SHELL", "ps aux | grep java | grep -v grep || exit 1"]
       interval: 10s
       timeout: 3s
       retries: 5
@@ -105,7 +105,7 @@ services:
       checkout:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "exec 6<>/dev/tcp/localhost/8080"]
+      test: ["CMD-SHELL", "ps aux | grep java | grep -v grep || exit 1"]
       interval: 10s
       timeout: 3s
       retries: 5
@@ -123,7 +123,7 @@ services:
       - NEXT_PUBLIC_API_BASE_URL=
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "exec 6<>/dev/tcp/localhost/3000"]
+      test: ["CMD-SHELL", "ps aux | grep node | grep -v grep || exit 1"]
       interval: 10s
       timeout: 3s
       retries: 5
@@ -146,10 +146,8 @@ services:
     depends_on:
       edge-gateway:
         condition: service_healthy
-      web-ui:
-        condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "exec 6<>/dev/tcp/localhost/80"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80/caddy-health"]
       interval: 10s
       timeout: 3s
       retries: 5

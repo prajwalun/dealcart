@@ -5,6 +5,7 @@ import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
+import io.grpc.netty.shaded.io.grpc.netty.NettyChannelBuilder;
 import io.grpc.stub.StreamObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -142,9 +143,10 @@ public class VendorPricingServer {
                                         AtomicInteger errorCount) {
         ManagedChannel channel = null;
         try {
-            // Create gRPC channel to vendor
-            channel = ManagedChannelBuilder.forAddress(endpoint.host, endpoint.port)
+            // Create gRPC channel to vendor using Netty transport explicitly
+            channel = NettyChannelBuilder.forAddress(endpoint.host, endpoint.port)
                     .usePlaintext()
+                    .defaultLoadBalancingPolicy("pick_first")
                     .build();
             
             // Create stub with deadline and call GetQuote

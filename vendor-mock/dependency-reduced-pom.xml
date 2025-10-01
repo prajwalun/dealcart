@@ -28,6 +28,7 @@
                 <transformer>
                   <mainClass>dev.dealcart.vendor.VendorMockServer</mainClass>
                 </transformer>
+                <transformer />
               </transformers>
             </configuration>
           </execution>

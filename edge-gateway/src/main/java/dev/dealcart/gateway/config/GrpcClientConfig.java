@@ -7,6 +7,7 @@ import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -64,19 +65,19 @@ public class GrpcClientConfig {
     }
     
     @Bean
-    public VendorPricingGrpc.VendorPricingStub pricingStub(ManagedChannel pricingChannel) {
+    public VendorPricingGrpc.VendorPricingStub pricingStub(@Qualifier("pricingChannel") ManagedChannel pricingChannel) {
         return VendorPricingGrpc.newStub(pricingChannel)
                 .withDeadlineAfter(deadlineSeconds, TimeUnit.SECONDS);
     }
     
     @Bean
-    public CheckoutGrpc.CheckoutBlockingStub checkoutStub(ManagedChannel checkoutChannel) {
+    public CheckoutGrpc.CheckoutBlockingStub checkoutStub(@Qualifier("checkoutChannel") ManagedChannel checkoutChannel) {
         return CheckoutGrpc.newBlockingStub(checkoutChannel)
                 .withDeadlineAfter(deadlineSeconds, TimeUnit.SECONDS);
     }
     
     @Bean
-    public CheckoutGrpc.CheckoutStub checkoutAsyncStub(ManagedChannel checkoutChannel) {
+    public CheckoutGrpc.CheckoutStub checkoutAsyncStub(@Qualifier("checkoutChannel") ManagedChannel checkoutChannel) {
         return CheckoutGrpc.newStub(checkoutChannel)
                 .withDeadlineAfter(deadlineSeconds, TimeUnit.SECONDS);
     }

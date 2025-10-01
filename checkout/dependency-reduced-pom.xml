@@ -28,6 +28,7 @@
                 <transformer>
                   <mainClass>dev.dealcart.checkout.CheckoutServer</mainClass>
                 </transformer>
+                <transformer />
               </transformers>
             </configuration>
           </execution>
