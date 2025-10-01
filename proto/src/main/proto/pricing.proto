@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package dealcart.v1;
+
+option java_package = "dev.dealcart.v1";
+option java_multiple_files = true;
+
+import "common.proto";
+
+// Service implemented by individual vendor backends
+service VendorBackend {
+  // Get a single quote from this vendor
+  rpc GetQuote(QuoteRequest) returns (PriceQuote);
+}
+
+// Service implemented by the vendor pricing aggregator
+service VendorPricing {
+  // Stream quotes from multiple vendors for a product
+  rpc StreamQuotes(QuoteRequest) returns (stream PriceQuote);
+}

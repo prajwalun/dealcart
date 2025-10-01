@@ -12,8 +12,8 @@
   <description>Parent POM for DealCart+ multi-module project</description>
 
   <properties>
-    <java.version>21</java.version>
-    <maven.compiler.release>21</maven.compiler.release>
+    <java.version>17</java.version>
+    <maven.compiler.release>17</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <spring-boot.version>3.3.3</spring-boot.version>

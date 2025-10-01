@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package dealcart.v1;
+
+option java_package = "dev.dealcart.v1";
+option java_multiple_files = true;
+
+// Represents monetary amounts with currency
+message Money {
+  string currency_code = 1;  // ISO 4217 currency code (e.g., "USD", "EUR")
+  int64 amount_cents = 2;    // Amount in smallest currency unit (cents for USD) - int64 for overflow safety
+}
+
+// Price quote from a vendor
+message PriceQuote {
+  string vendor_id = 1;      // Unique vendor identifier
+  string product_id = 2;     // Product being quoted
+  Money price = 3;           // Quoted price
+  int32 estimated_days = 4;  // Estimated delivery time in days
+  string vendor_name = 5;    // Human-readable vendor name
+  int64 timestamp_ms = 6;    // Quote timestamp in milliseconds since epoch
+}
+
+// Request for price quotes
+message QuoteRequest {
+  string product_id = 1;     // Product to quote
+  int32 quantity = 2;        // Quantity requested
+  string currency_code = 3;  // Preferred currency (optional, defaults to USD)
+}

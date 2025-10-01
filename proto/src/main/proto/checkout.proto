@@ -1,0 +1,79 @@
+syntax = "proto3";
+
+package dealcart.v1;
+
+option java_package = "dev.dealcart.v1";
+option java_multiple_files = true;
+
+import "common.proto";
+
+// Individual item in checkout
+message CheckoutItem {
+  string product_id = 1;     // Product identifier
+  int32 quantity = 2;        // Quantity to purchase
+  Money unit_price = 3;      // Price per unit
+  string vendor_id = 4;      // Selected vendor for this item
+}
+
+// Checkout request
+message CheckoutRequest {
+  string customer_id = 1;    // Customer identifier
+  repeated CheckoutItem items = 2;  // Items to purchase
+  string shipping_address = 3;      // Delivery address
+  string payment_method_id = 4;     // Payment method identifier
+}
+
+// Checkout response
+message CheckoutResponse {
+  string checkout_id = 1;    // Unique checkout identifier
+  CheckoutStatus status = 2; // Current checkout status (enum, not string)
+  Money total_amount = 3;    // Total amount to be charged
+  string message = 4;        // Status message or error details
+}
+
+// Checkout status enumeration
+enum CheckoutStatus {
+  CHECKOUT_STATUS_UNSPECIFIED = 0;
+  CHECKOUT_STATUS_PENDING = 1;      // Initial state
+  CHECKOUT_STATUS_RESERVING = 2;    // Reserving inventory
+  CHECKOUT_STATUS_PRICING = 3;      // Calculating prices and taxes
+  CHECKOUT_STATUS_PAYING = 4;       // Processing payment
+  CHECKOUT_STATUS_CONFIRMING = 5;   // Confirming with vendors
+  CHECKOUT_STATUS_COMPLETED = 6;    // Successfully completed
+  CHECKOUT_STATUS_FAILED = 7;       // Failed (with rollback)
+  CHECKOUT_STATUS_CANCELLED = 8;    // Cancelled by user
+}
+
+// Status of a specific node in the checkout DAG
+message NodeStatus {
+  string node_id = 1;        // Node identifier (e.g., "reserve", "price", "tax", "pay")
+  NodeState state = 2;       // Current node state
+  string message = 3;        // Status message
+  int64 timestamp_ms = 4;    // Status timestamp
+  string error_code = 5;     // Error code if failed
+  string error_message = 6;  // Error details if failed
+}
+
+// Node state enumeration
+enum NodeState {
+  NODE_STATE_UNSPECIFIED = 0;
+  NODE_STATE_PENDING = 1;    // Waiting to execute
+  NODE_STATE_RUNNING = 2;    // Currently executing
+  NODE_STATE_COMPLETED = 3;  // Successfully completed
+  NODE_STATE_FAILED = 4;     // Failed execution
+  NODE_STATE_SKIPPED = 5;    // Skipped (dependency failed)
+}
+
+// Checkout service
+service Checkout {
+  // Start a new checkout process
+  rpc Start(CheckoutRequest) returns (CheckoutResponse);
+  
+  // Stream real-time status updates for a checkout
+  rpc GetStatus(CheckoutStatusRequest) returns (stream NodeStatus);
+}
+
+// Request for checkout status stream
+message CheckoutStatusRequest {
+  string checkout_id = 1;    // Checkout identifier to monitor
+}
