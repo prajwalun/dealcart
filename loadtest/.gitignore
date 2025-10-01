@@ -1,0 +1,9 @@
+# JMeter results
+*.jtl
+*.log
+results-*/
+jmeter.log
+
+# Backup files
+*.bak
+
