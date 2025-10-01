@@ -41,11 +41,11 @@ A production-ready, horizontally scalable e-commerce platform built with Java 21
 ## 📊 Performance Metrics & Testing Results
 
 ### Load Testing Achievements
-- **100K+ Requests Tested**: Comprehensive load testing with 50K and 100K request scenarios
-- **Sustained Throughput**: 74+ TPS sustained over extended periods
+- **50K+ Requests Tested**: Extended load testing with 50K and 100K request scenarios
+- **Sustained Throughput**: 70+ TPS sustained over extended periods
 - **Spike Testing**: 500 concurrent users with 149 TPS peak throughput
 - **Error Rate**: <1% error rate under sustained load, <2% during traffic spikes
-- **Success Rate**: 99.8% success rate across all test scenarios
+- **Success Rate**: 99%+ success rate across all test scenarios
 
 ### Auto-scaling Performance
 - **Adaptive Thread Pools**: Dynamic scaling from 8→64 threads based on P95 latency
@@ -58,7 +58,7 @@ A production-ready, horizontally scalable e-commerce platform built with Java 21
 - **50K Request Load**: 74.8 TPS with 832ms P95 latency
 - **100K Request Load**: 74.5 TPS with 836ms P95 latency  
 - **Spike Testing**: 500 concurrent users with 149 TPS peak
-- **Flash Sale Simulation**: High-volume traffic spike handling
+- **Concurrent Burst Testing**: High-volume traffic spike handling
 
 ## 🛠️ Technology Stack
 
@@ -126,8 +126,7 @@ npm run dev
 - **50K Request Load Test** - Extended load testing with 74.8 TPS sustained
 - **100K Request Load Test** - High-volume testing with 74.5 TPS sustained
 - **Spike Test** - 500 concurrent users simulating flash sale traffic
-- **Flash Sale Simulation** - High-volume traffic spike handling
-- **100K DAU Test** - Daily active user simulation
+- **Concurrent Burst Testing** - High-volume traffic spike handling
 
 ### Test Results Summary
 | Test Type | Requests | Duration | Throughput | P95 Latency | Error Rate |
@@ -151,9 +150,6 @@ npm run dev
 
 # Run flash sale simulation
 ./loadtest/run-flash-sale-test.sh
-
-# Run 100K DAU simulation
-./loadtest/run-100k-dau-test.sh
 ```
 
 ## ☁️ AWS Deployment
@@ -226,7 +222,7 @@ services:
 ### Technical Achievements
 - **Microservices Architecture** - 5 independent services with gRPC communication
 - **Advanced Auto-scaling** - Adaptive thread pools (8→64 threads) + horizontal scaling (3+2 instances)
-- **Comprehensive Load Testing** - 100K+ requests across multiple scenarios with detailed metrics
+- **Comprehensive Load Testing** - 50K+ requests across multiple scenarios with detailed metrics
 - **Performance Optimization** - P95 latency improvements through adaptive scaling
 - **Spike Handling** - 500 concurrent users with 149 TPS peak throughput
 - **CI/CD Pipeline** - GitHub Actions with automated Docker builds and deployment
