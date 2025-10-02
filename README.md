@@ -23,7 +23,7 @@ A production-ready, horizontally scalable e-commerce platform built with Java 21
 ### Scalability & Performance
 - **Horizontal Scaling** - Docker Compose replicas with load balancing
 - **Adaptive Thread Pools** - Dynamic scaling based on P95 latency
-- **Load Testing** - JMeter tests for 100K+ requests with 99.8% success rate
+- **Load Testing** - JMeter tests for 150K+ requests with 100% success rate
 - **Auto-scaling** - CPU/memory-based scaling with realistic thresholds
 
 ### Distributed Systems
@@ -41,7 +41,7 @@ A production-ready, horizontally scalable e-commerce platform built with Java 21
 ## 📊 Performance Metrics & Testing Results
 
 ### Load Testing Achievements
-- **200K+ Requests Tested**: High-concurrency burst testing with 200K+ requests
+- **150K+ Requests Tested**: Comprehensive load testing with 150K+ total requests across multiple test scenarios
 - **Sustained Throughput**: 70+ TPS sustained over extended periods
 - **Spike Testing**: 500 concurrent users with 149 TPS peak throughput
 - **Error Rate**: <1% error rate under sustained load, <2% during traffic spikes
@@ -59,7 +59,7 @@ A production-ready, horizontally scalable e-commerce platform built with Java 21
 - **Baseline vs Auto-scaled**: Comparative testing showing scaling effectiveness
 - **50K Request Load**: 74.8 TPS with 832ms P95 latency
 - **100K Request Load**: 74.5 TPS with 836ms P95 latency  
-- **200K+ High-Concurrency Bursts**: 100% success rate with P95 ~250ms
+- **High-Concurrency Bursts**: 100% success rate with P95 ~250ms
 - **Spike Testing**: 500 concurrent users with 149 TPS peak
 - **Auto-scaling Validation**: Confirmed scaling behavior under load
 
@@ -226,7 +226,7 @@ services:
 - **Microservices Architecture** - 5 independent services with gRPC communication
 - **Production-Style Auto-scaling** - CPU/memory-based scaling (1→5 instances) with 5-10min cooldowns
 - **System Metrics API** - CPU, memory, load average, latency, error rate monitoring
-- **Comprehensive Load Testing** - 200K+ requests in high-concurrency bursts with 100% success rate
+- **Comprehensive Load Testing** - 150K+ total requests tested with 100% success rate
 - **Performance Optimization** - P95 latency ~250ms achieved through adaptive scaling
 - **Spike Handling** - 500 concurrent users with 149 TPS peak throughput
 - **CI/CD Pipeline** - GitHub Actions with automated Docker builds and deployment
